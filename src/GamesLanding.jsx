@@ -232,7 +232,7 @@ export default function GamesLanding() {
               <div className="text-slate-500 text-sm font-semibold">Multiplayer Fun</div>
             </div>
             <div className="bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-xl px-8 py-4">
-              <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-400">🎳</div>
+              <div className="text-3xl font-bold">🎳</div>
               <div className="text-slate-500 text-sm font-semibold">Real-Time Sync</div>
             </div>
           </div>
