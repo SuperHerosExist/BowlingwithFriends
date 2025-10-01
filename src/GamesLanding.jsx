@@ -13,7 +13,7 @@ export default function GamesLanding() {
     {
       id: 'makes-or-misses',
       name: 'Makes or Misses',
-      description: 'Predict if the bowler will make or miss their shot',
+      description: 'Predict if you make or miss the next shot',
       icon: Target,
       gradient: 'from-cyan-500 via-blue-500 to-indigo-600',
       glowColor: 'shadow-cyan-500/50',
@@ -23,7 +23,7 @@ export default function GamesLanding() {
     {
       id: 'match-play',
       name: 'Match Play',
-      description: 'Head-to-head 3-game match with stakes',
+      description: 'Head-to-head 3-game match',
       icon: Trophy,
       gradient: 'from-emerald-500 via-teal-500 to-cyan-600',
       glowColor: 'shadow-emerald-500/50',
@@ -33,7 +33,7 @@ export default function GamesLanding() {
     {
       id: 'king-of-the-hill',
       name: 'King of the Hill',
-      description: 'Battle for high game and high totals prizes',
+      description: 'High game takes it all',
       icon: Crown,
       gradient: 'from-amber-500 via-orange-500 to-red-600',
       glowColor: 'shadow-amber-500/50',
@@ -43,7 +43,7 @@ export default function GamesLanding() {
     {
       id: 'bracket-play',
       name: 'Bracket Play',
-      description: '8-player single elimination tournament',
+      description: '8-player single elimination bracket',
       icon: Network,
       gradient: 'from-violet-500 via-purple-500 to-fuchsia-600',
       glowColor: 'shadow-violet-500/50',
