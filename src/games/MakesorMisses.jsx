@@ -3,8 +3,12 @@ import { UserPlus, Check, X, Trophy, QrCode, Users, Target } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react';
 import { database } from '../firebase';
 import { ref, set, onValue, get } from 'firebase/database';
+import { useAuth } from '../AuthContext';
+import { useGameStats } from '../hooks/useGameStats';
 
 export default function BowlingPredictor() {
+  const { currentUser } = useAuth();
+  const { recordMakesOrMissesGame } = useGameStats();
   const [gameCode, setGameCode] = useState('');
   const [joinCode, setJoinCode] = useState('');
   const [isHost, setIsHost] = useState(false);
@@ -185,7 +189,31 @@ export default function BowlingPredictor() {
     });
   };
 
+  const recordGameStats = async () => {
+    if (!currentUser || !gameOver) return;
+
+    // Find current user's player data
+    const currentPlayerData = players.find(p =>
+      p.name.toLowerCase() === currentUser.displayName?.toLowerCase() ||
+      p.id === currentUser.uid
+    );
+
+    if (currentPlayerData) {
+      // Determine if player won (highest score)
+      const maxScore = Math.max(...players.map(p => p.score));
+      const isWinner = currentPlayerData.score === maxScore;
+
+      await recordMakesOrMissesGame({
+        isWinner,
+        points: currentPlayerData.score
+      });
+    }
+  };
+
   const resetGame = () => {
+    // Record stats before resetting
+    recordGameStats();
+
     updateGame({
       players: players.map((p) => ({ ...p, score: 0 })),
       ledger: {},

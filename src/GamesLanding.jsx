@@ -1,13 +1,23 @@
 import React, { useState } from 'react';
-import { Target, Dices, Trophy, ArrowLeft, Crown, Network, Sparkles, Zap } from 'lucide-react';
+import { Target, Dices, Trophy, ArrowLeft, Crown, Network, Sparkles, Zap, User, LogOut, BarChart3, Shield } from 'lucide-react';
 import MakesOrMisses from './games/MakesorMisses';
 import MatchPlay from './games/MatchPlay';
 import KingOfTheHill from './games/KingOfTheHill';
 import BracketPlay from './games/BracketPlay';
+import { useAuth } from './AuthContext';
+import AuthModal from './components/AuthModal';
+import UserStats from './components/UserStats';
+import AdminDashboard from './components/AdminDashboard';
 
 export default function GamesLanding() {
   const [selectedGame, setSelectedGame] = useState(null);
   const [hoveredGame, setHoveredGame] = useState(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showStats, setShowStats] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
+
+  const { currentUser, isGuest, isAdmin, signOut } = useAuth();
 
   const games = [
     {
@@ -136,6 +146,93 @@ export default function GamesLanding() {
       {/* Gradient Orbs */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl animate-pulse"></div>
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-600/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
+
+      {/* User Profile Button - Top Right */}
+      <div className="absolute top-6 right-6 z-20">
+        {currentUser ? (
+          <div className="relative">
+            <button
+              onClick={() => setShowUserMenu(!showUserMenu)}
+              className="flex items-center gap-3 bg-slate-900/80 backdrop-blur-sm border border-slate-700 rounded-full px-4 py-2 hover:bg-slate-800 transition"
+            >
+              {currentUser.photoURL ? (
+                <img
+                  src={currentUser.photoURL}
+                  alt="Profile"
+                  className="w-8 h-8 rounded-full object-cover"
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+              <div className={`w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 items-center justify-center ${currentUser.photoURL ? 'hidden' : 'flex'}`}>
+                <User size={20} className="text-white" />
+              </div>
+              <span className="text-white font-semibold">
+                {currentUser.displayName || 'Guest'}
+                {isGuest && <span className="text-slate-400 text-sm ml-1">(Guest)</span>}
+              </span>
+            </button>
+
+            {/* User Menu Dropdown */}
+            {showUserMenu && (
+              <div className="absolute top-full right-0 mt-2 w-64 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl overflow-hidden">
+                <button
+                  onClick={() => {
+                    setShowStats(true);
+                    setShowUserMenu(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-slate-800 transition flex items-center gap-3"
+                >
+                  <BarChart3 size={18} />
+                  View Stats
+                </button>
+                {isAdmin && (
+                  <button
+                    onClick={() => {
+                      setShowAdmin(true);
+                      setShowUserMenu(false);
+                    }}
+                    className="w-full px-4 py-3 text-left text-purple-400 hover:bg-slate-800 transition flex items-center gap-3 border-t border-slate-800"
+                  >
+                    <Shield size={18} />
+                    Admin Dashboard
+                  </button>
+                )}
+                <button
+                  onClick={async () => {
+                    await signOut();
+                    setShowUserMenu(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-red-400 hover:bg-slate-800 transition flex items-center gap-3 border-t border-slate-800"
+                >
+                  <LogOut size={18} />
+                  Sign Out
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <button
+            onClick={() => setShowAuthModal(true)}
+            className="bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-semibold px-6 py-2 rounded-full hover:shadow-lg hover:shadow-cyan-500/50 transition flex items-center gap-2"
+          >
+            <User size={20} />
+            Sign In
+          </button>
+        )}
+      </div>
+
+      {/* Auth Modal */}
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+
+      {/* User Stats Modal */}
+      <UserStats isOpen={showStats} onClose={() => setShowStats(false)} />
+
+      {/* Admin Dashboard Modal */}
+      <AdminDashboard isOpen={showAdmin} onClose={() => setShowAdmin(false)} />
 
       <div className="relative z-10 min-h-screen p-6 flex items-center justify-center">
         <div className="max-w-7xl w-full">

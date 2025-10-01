@@ -113,13 +113,101 @@ All four games share similar architecture patterns with Firebase sync and QR cod
 - Shadow effects with color-matched glows
 - Consistent button and input styling across all games
 
+### Authentication & User Management
+
+**Authentication System** ([src/AuthContext.jsx](src/AuthContext.jsx)):
+- Firebase Authentication with Google and Apple sign-in providers
+- Anonymous/Guest mode support for playing without account
+- Persistent authentication state across sessions
+- Automatic user profile initialization in database
+
+**User Profile Structure:**
+```javascript
+users/{uid}: {
+  uid: string,
+  displayName: string,
+  email: string | null,
+  photoURL: string | null,
+  isAnonymous: boolean,
+  createdAt: timestamp,
+  lastLogin: timestamp,
+  stats: {
+    makesOrMisses: { gamesPlayed, totalPoints, wins, losses },
+    matchPlay: { gamesPlayed, wins, losses, ties },
+    kingOfTheHill: { gamesPlayed, highGameWins, highTotalWins },
+    bracketPlay: { tournamentsPlayed, championships, runnerUps }
+  }
+}
+```
+
+**Components:**
+- **AuthModal** ([src/components/AuthModal.jsx](src/components/AuthModal.jsx)) - Sign in dialog with Google/Apple/Guest options
+- **UserStats** ([src/components/UserStats.jsx](src/components/UserStats.jsx)) - Stats dashboard showing performance across all games
+- **useGameStats** ([src/hooks/useGameStats.js](src/hooks/useGameStats.js)) - Hook for recording game statistics
+
+**User Experience:**
+- Guest users can play all games but stats won't persist across devices
+- Authenticated users have stats tracked automatically
+- Profile button in top-right corner shows user menu
+- "View Stats" modal displays detailed performance metrics
+- Sign out returns to unauthenticated state
+
+**Stats Tracking:**
+- Makes or Misses: Tracks games played, total points, wins/losses
+- Match Play: Records match outcomes (win/loss/tie)
+- King of the Hill: Counts high game and high total victories
+- Bracket Play: Tracks tournament participation and placements
+- Stats automatically update when games complete
+
+### Admin Dashboard
+
+**Admin System** ([src/adminConfig.js](src/adminConfig.js)):
+- Email-based admin authorization
+- Configure admin users by adding emails to `ADMIN_EMAILS` array
+- Role-based access control via `isAdmin()` function
+
+**AdminDashboard Component** ([src/components/AdminDashboard.jsx](src/components/AdminDashboard.jsx)):
+- Real-time system overview and management
+- Three main views: Overview, Users, Active Games
+- Accessible only to authorized admin users
+
+**Dashboard Features:**
+- **Overview Tab:**
+  - Total users, authenticated vs guest breakdown
+  - Total active games count
+  - Game mode distribution (Makes or Misses, Match Play, etc.)
+- **Users Tab:**
+  - Complete user list with profiles
+  - User type (Guest/Authenticated)
+  - Join dates and total games played
+  - Sortable and filterable table view
+- **Active Games Tab:**
+  - All active games across all game modes
+  - Game codes, player counts, creation timestamps
+  - Organized by game type with color coding
+
+**Access Control:**
+- Admin menu option appears in user dropdown for authorized users
+- Non-admin users see "Access Denied" if attempting direct access
+- Admin status checked via email match in `adminConfig.js`
+
+**Setup Instructions:**
+1. Open [src/adminConfig.js](src/adminConfig.js)
+2. Add your email(s) to `ADMIN_EMAILS` array
+3. Sign in with that email using Google or Email/Password auth
+4. Admin Dashboard option appears in user menu
+
 ## Important Notes
 
 - Firebase API key is exposed in client code (standard practice for client-side Firebase)
+- Firebase Authentication enabled for Google and Email/Password providers
+- Guest/anonymous authentication supported
+- Admin access controlled via email whitelist in `adminConfig.js`
 - No backend validation - all game logic runs client-side
 - TailwindCSS loaded via CDN (not npm dependency)
 - No test suite exists
 - Game state persists in Firebase indefinitely
-- Entry point: [src/main.jsx](src/main.jsx) renders `GamesLanding`
+- User stats persist for authenticated users only
+- Entry point: [src/main.jsx](src/main.jsx) wraps app with `AuthProvider`
 - All games support real-time multiplayer with QR code sharing
 - Mobile-responsive with touch-friendly controls
