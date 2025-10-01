@@ -68,13 +68,14 @@ export function AuthProvider({ children }) {
       });
     } else {
       // Update existing user info (in case display name or photo changed)
+      const existingData = snapshot.val() || {};
       const updates = {
-        displayName: user.displayName || snapshot.val().displayName,
-        photoURL: user.photoURL || snapshot.val().photoURL,
-        email: user.email || snapshot.val().email,
+        displayName: user.displayName || existingData.displayName || 'Guest User',
+        photoURL: user.photoURL || existingData.photoURL || null,
+        email: user.email || existingData.email || null,
         lastLogin: Date.now()
       };
-      await set(userRef, { ...snapshot.val(), ...updates });
+      await set(userRef, { ...existingData, ...updates });
     }
   };
 
