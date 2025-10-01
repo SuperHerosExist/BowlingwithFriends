@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Target, Dices, Trophy, ArrowLeft, Crown, Network, Sparkles, Zap, User, LogOut, BarChart3, Shield } from 'lucide-react';
+import { Target, Dices, Trophy, ArrowLeft, Crown, Network, Sparkles, Zap, User, LogOut, BarChart3, Shield, Upload } from 'lucide-react';
 import MakesOrMisses from './games/MakesorMisses';
 import MatchPlay from './games/MatchPlay';
 import KingOfTheHill from './games/KingOfTheHill';
@@ -8,6 +8,8 @@ import { useAuth } from './AuthContext';
 import AuthModal from './components/AuthModal';
 import UserStats from './components/UserStats';
 import AdminDashboard from './components/AdminDashboard';
+import TopBowlers from './components/TopBowlers';
+import ScoreImport from './components/ScoreImport';
 
 export default function GamesLanding() {
   const [selectedGame, setSelectedGame] = useState(null);
@@ -16,6 +18,8 @@ export default function GamesLanding() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showStats, setShowStats] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
+  const [showTopBowlers, setShowTopBowlers] = useState(false);
+  const [showScoreImport, setShowScoreImport] = useState(false);
 
   const { currentUser, isGuest, isAdmin, signOut } = useAuth();
 
@@ -234,6 +238,12 @@ export default function GamesLanding() {
       {/* Admin Dashboard Modal */}
       <AdminDashboard isOpen={showAdmin} onClose={() => setShowAdmin(false)} />
 
+      {/* Top Bowlers Modal */}
+      <TopBowlers isOpen={showTopBowlers} onClose={() => setShowTopBowlers(false)} />
+
+      {/* Score Import Modal */}
+      <ScoreImport isOpen={showScoreImport} onClose={() => setShowScoreImport(false)} />
+
       <div className="relative z-10 min-h-screen p-6 flex items-center justify-center">
         <div className="max-w-7xl w-full">
           {/* Header */}
@@ -253,7 +263,7 @@ export default function GamesLanding() {
           </div>
 
           {/* Game Cards Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <div className="grid md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-12">
             {games.map((game) => {
               const Icon = game.icon;
               const isHovered = hoveredGame === game.id;
@@ -316,6 +326,94 @@ export default function GamesLanding() {
                 </button>
               );
             })}
+
+            {/* Top Bowlers Card */}
+            <button
+              onClick={() => setShowTopBowlers(true)}
+              onMouseEnter={() => setHoveredGame('top-bowlers')}
+              onMouseLeave={() => setHoveredGame(null)}
+              className="group relative bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-2xl p-6 transition-all duration-500 hover:scale-105 hover:border-slate-700 cursor-pointer hover:shadow-2xl"
+            >
+              {/* Glow Effect */}
+              {hoveredGame === 'top-bowlers' && (
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-600 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
+              )}
+
+              <div className="relative z-10">
+                {/* Badge */}
+                <div className="flex justify-center mb-2">
+                  <div className="bg-slate-900 border border-slate-700 px-3 py-1 rounded-full text-xs font-bold text-slate-300">
+                    🏆 Leaderboard
+                  </div>
+                </div>
+
+                {/* Icon */}
+                <div className="w-16 h-16 mx-auto mb-6 rounded-xl bg-gradient-to-br from-amber-500 via-yellow-500 to-orange-600 flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg hover:shadow-amber-500/50 hover:shadow-2xl">
+                  <Trophy size={32} className="text-white" />
+                </div>
+
+                {/* Title */}
+                <h2 className="text-xl font-bold text-white mb-2 tracking-tight">
+                  Top Bowlers
+                </h2>
+
+                {/* Description */}
+                <p className="text-slate-400 text-sm mb-6 leading-relaxed">
+                  Weekly leaderboard from your bowling center
+                </p>
+
+                {/* CTA Button */}
+                <div className="flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-600 px-4 py-2.5 rounded-lg text-white text-sm font-bold shadow-lg transform group-hover:shadow-xl transition-all duration-300">
+                  <Sparkles size={16} />
+                  <span>VIEW LEADERS</span>
+                </div>
+              </div>
+            </button>
+
+            {/* Import Scores Card - Only show if logged in */}
+            {currentUser && !isGuest && (
+              <button
+                onClick={() => setShowScoreImport(true)}
+                onMouseEnter={() => setHoveredGame('import-scores')}
+                onMouseLeave={() => setHoveredGame(null)}
+                className="group relative bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-2xl p-6 transition-all duration-500 hover:scale-105 hover:border-slate-700 cursor-pointer hover:shadow-2xl"
+              >
+                {/* Glow Effect */}
+                {hoveredGame === 'import-scores' && (
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
+                )}
+
+                <div className="relative z-10">
+                  {/* Badge */}
+                  <div className="flex justify-center mb-2">
+                    <div className="bg-slate-900 border border-slate-700 px-3 py-1 rounded-full text-xs font-bold text-slate-300">
+                      📊 Track Stats
+                    </div>
+                  </div>
+
+                  {/* Icon */}
+                  <div className="w-16 h-16 mx-auto mb-6 rounded-xl bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg hover:shadow-blue-500/50 hover:shadow-2xl">
+                    <Upload size={32} className="text-white" />
+                  </div>
+
+                  {/* Title */}
+                  <h2 className="text-xl font-bold text-white mb-2 tracking-tight">
+                    Import Scores
+                  </h2>
+
+                  {/* Description */}
+                  <p className="text-slate-400 text-sm mb-6 leading-relaxed">
+                    Add your completed game scores
+                  </p>
+
+                  {/* CTA Button */}
+                  <div className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 px-4 py-2.5 rounded-lg text-white text-sm font-bold shadow-lg transform group-hover:shadow-xl transition-all duration-300">
+                    <Upload size={16} />
+                    <span>ADD SCORES</span>
+                  </div>
+                </div>
+              </button>
+            )}
           </div>
 
           {/* Footer Stats */}
