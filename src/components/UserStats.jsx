@@ -78,7 +78,7 @@ export default function UserStats({ isOpen, onClose }) {
             {currentUser?.displayName?.[0] || 'G'}
           </div>
           <div>
-            <h2 className="text-3xl font-bold text-white">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
               {currentUser?.displayName || 'Guest User'}
             </h2>
             {isGuest && (

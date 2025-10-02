@@ -151,15 +151,26 @@ export function AuthProvider({ children }) {
   // Listen to auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setCurrentUser(user);
-      setIsGuest(user?.isAnonymous || false);
-      setIsAdmin(checkIsAdmin(user));
-
       if (user) {
+        setCurrentUser(user);
+        setIsGuest(user?.isAnonymous || false);
+        setIsAdmin(checkIsAdmin(user));
         await initializeUserProfile(user);
+        setLoading(false);
+      } else {
+        // Auto-sign in as guest if no user is logged in
+        try {
+          const result = await signInAnonymously(auth);
+          setCurrentUser(result.user);
+          setIsGuest(true);
+          setIsAdmin(false);
+          await initializeUserProfile(result.user);
+        } catch (error) {
+          console.error('Error auto-signing in as guest:', error);
+        } finally {
+          setLoading(false);
+        }
       }
-
-      setLoading(false);
     });
 
     return unsubscribe;

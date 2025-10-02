@@ -86,10 +86,10 @@ export default function GamesLanding() {
   // If a game is selected, render it
   if (selectedGame === 'makes-or-misses') {
     return (
-      <div className="relative">
+      <div className="relative min-h-screen">
         <button
           onClick={handleBackToMenu}
-          className="absolute top-4 left-4 z-50 bg-white text-gray-700 px-4 py-2 rounded-lg shadow-lg hover:bg-gray-100 transition flex items-center gap-2 font-semibold"
+          className="fixed top-6 left-6 z-50 bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-6 py-3 rounded-xl shadow-2xl hover:shadow-cyan-500/50 hover:scale-105 transition-all flex items-center gap-2 font-bold"
         >
           <ArrowLeft size={20} />
           Back to Games
@@ -101,10 +101,10 @@ export default function GamesLanding() {
 
   if (selectedGame === 'match-play') {
     return (
-      <div className="relative">
+      <div className="relative min-h-screen">
         <button
           onClick={handleBackToMenu}
-          className="absolute top-4 left-4 z-50 bg-white text-gray-700 px-4 py-2 rounded-lg shadow-lg hover:bg-gray-100 transition flex items-center gap-2 font-semibold"
+          className="fixed top-6 left-6 z-50 bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-6 py-3 rounded-xl shadow-2xl hover:shadow-emerald-500/50 hover:scale-105 transition-all flex items-center gap-2 font-bold"
         >
           <ArrowLeft size={20} />
           Back to Games
@@ -116,10 +116,10 @@ export default function GamesLanding() {
 
   if (selectedGame === 'king-of-the-hill') {
     return (
-      <div className="relative">
+      <div className="relative min-h-screen">
         <button
           onClick={handleBackToMenu}
-          className="absolute top-4 left-4 z-50 bg-white text-gray-700 px-4 py-2 rounded-lg shadow-lg hover:bg-gray-100 transition flex items-center gap-2 font-semibold"
+          className="fixed top-6 left-6 z-50 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-6 py-3 rounded-xl shadow-2xl hover:shadow-amber-500/50 hover:scale-105 transition-all flex items-center gap-2 font-bold"
         >
           <ArrowLeft size={20} />
           Back to Games
@@ -131,10 +131,10 @@ export default function GamesLanding() {
 
   if (selectedGame === 'bracket-play') {
     return (
-      <div className="relative">
+      <div className="relative min-h-screen">
         <button
           onClick={handleBackToMenu}
-          className="absolute top-4 left-4 z-50 bg-white text-gray-700 px-4 py-2 rounded-lg shadow-lg hover:bg-gray-100 transition flex items-center gap-2 font-semibold"
+          className="fixed top-6 left-6 z-50 bg-gradient-to-r from-violet-500 to-purple-500 text-white px-6 py-3 rounded-xl shadow-2xl hover:shadow-violet-500/50 hover:scale-105 transition-all flex items-center gap-2 font-bold"
         >
           <ArrowLeft size={20} />
           Back to Games
@@ -159,58 +159,70 @@ export default function GamesLanding() {
 
       {/* User Profile Button - Top Right */}
       <div className="absolute top-6 right-6 z-20">
-        {currentUser ? (
-          <div className="relative">
-            <button
-              onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center gap-3 bg-slate-900/80 backdrop-blur-sm border border-slate-700 rounded-full px-4 py-2 hover:bg-slate-800 transition"
-            >
-              {currentUser.photoURL ? (
-                <img
-                  src={currentUser.photoURL}
-                  alt="Profile"
-                  className="w-8 h-8 rounded-full object-cover"
-                  referrerPolicy="no-referrer"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'flex';
-                  }}
-                />
-              ) : null}
-              <div className={`w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 items-center justify-center ${currentUser.photoURL ? 'hidden' : 'flex'}`}>
-                <User size={20} className="text-white" />
-              </div>
-              <span className="text-white font-semibold">
-                {currentUser.displayName || 'Guest'}
-                {isGuest && <span className="text-slate-400 text-sm ml-1">(Guest)</span>}
-              </span>
-            </button>
+        <div className="relative">
+          <button
+            onClick={() => setShowUserMenu(!showUserMenu)}
+            className="flex items-center gap-3 bg-slate-900/80 backdrop-blur-sm border border-slate-700 rounded-full px-4 py-2 hover:bg-slate-800 transition"
+          >
+            {currentUser?.photoURL ? (
+              <img
+                src={currentUser.photoURL}
+                alt="Profile"
+                className="w-8 h-8 rounded-full object-cover"
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+            ) : null}
+            <div className={`w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 items-center justify-center ${currentUser?.photoURL ? 'hidden' : 'flex'}`}>
+              <User size={20} className="text-white" />
+            </div>
+            <span className="text-white font-semibold">
+              {currentUser?.displayName || 'Guest'}
+              {isGuest && <span className="text-slate-400 text-sm ml-1">(Guest)</span>}
+            </span>
+          </button>
 
-            {/* User Menu Dropdown */}
-            {showUserMenu && (
-              <div className="absolute top-full right-0 mt-2 w-64 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl overflow-hidden">
+          {/* User Menu Dropdown */}
+          {showUserMenu && (
+            <div className="absolute top-full right-0 mt-2 w-64 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl overflow-hidden">
+              {isGuest && (
                 <button
                   onClick={() => {
-                    setShowStats(true);
+                    setShowAuthModal(true);
                     setShowUserMenu(false);
                   }}
-                  className="w-full px-4 py-3 text-left text-white hover:bg-slate-800 transition flex items-center gap-3"
+                  className="w-full px-4 py-3 text-left text-cyan-400 hover:bg-slate-800 transition flex items-center gap-3 border-b border-slate-800"
                 >
-                  <BarChart3 size={18} />
-                  View Stats
+                  <User size={18} />
+                  Sign In / Register
                 </button>
-                {isAdmin && (
-                  <button
-                    onClick={() => {
-                      setShowAdmin(true);
-                      setShowUserMenu(false);
-                    }}
-                    className="w-full px-4 py-3 text-left text-purple-400 hover:bg-slate-800 transition flex items-center gap-3 border-t border-slate-800"
-                  >
-                    <Shield size={18} />
-                    Admin Dashboard
-                  </button>
-                )}
+              )}
+              <button
+                onClick={() => {
+                  setShowStats(true);
+                  setShowUserMenu(false);
+                }}
+                className="w-full px-4 py-3 text-left text-white hover:bg-slate-800 transition flex items-center gap-3"
+              >
+                <BarChart3 size={18} />
+                View Stats
+              </button>
+              {isAdmin && (
+                <button
+                  onClick={() => {
+                    setShowAdmin(true);
+                    setShowUserMenu(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-purple-400 hover:bg-slate-800 transition flex items-center gap-3 border-t border-slate-800"
+                >
+                  <Shield size={18} />
+                  Admin Dashboard
+                </button>
+              )}
+              {!isGuest && (
                 <button
                   onClick={async () => {
                     await signOut();
@@ -221,18 +233,10 @@ export default function GamesLanding() {
                   <LogOut size={18} />
                   Sign Out
                 </button>
-              </div>
-            )}
-          </div>
-        ) : (
-          <button
-            onClick={() => setShowAuthModal(true)}
-            className="bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-semibold px-6 py-2 rounded-full hover:shadow-lg hover:shadow-cyan-500/50 transition flex items-center gap-2"
-          >
-            <User size={20} />
-            Sign In
-          </button>
-        )}
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Auth Modal */}

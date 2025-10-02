@@ -166,29 +166,9 @@ export default function AuthModal({ isOpen, onClose }) {
               Continue with Email
             </button>
 
-            {/* Divider */}
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-700"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-slate-900 text-slate-400">OR</span>
-              </div>
-            </div>
-
-            {/* Guest Continue */}
-            <button
-              onClick={handleGuestContinue}
-              disabled={loading}
-              className="w-full bg-slate-800 text-slate-300 font-semibold py-3 px-4 rounded-lg hover:bg-slate-700 transition flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed border border-slate-700"
-            >
-              <UserIcon size={20} />
-              Continue as Guest
-            </button>
-
             {/* Footer Note */}
             <p className="text-xs text-slate-500 text-center mt-6">
-              Guest accounts won't save your stats across devices
+              Sign in to unlock all games and save your stats permanently
             </p>
           </div>
         )}
