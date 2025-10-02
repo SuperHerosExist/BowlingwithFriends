@@ -274,15 +274,15 @@ export default function AdminDashboard({ isOpen, onClose }) {
 
       <div className="relative bg-slate-900 border-2 border-slate-700 rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="bg-gradient-to-r from-purple-900/50 to-cyan-900/50 border-b border-slate-700 p-6">
-          <div className="flex items-center justify-between">
+        <div className="bg-gradient-to-r from-purple-900/50 to-cyan-900/50 border-b border-slate-700 p-4 md:p-6">
+          <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center">
-                <Shield size={24} className="text-white" />
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center">
+                <Shield size={20} className="text-white md:w-6 md:h-6" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-white">Admin Dashboard</h2>
-                <p className="text-slate-400 text-sm">System Overview & Management</p>
+                <h2 className="text-xl md:text-2xl font-bold text-white">Admin Dashboard</h2>
+                <p className="text-slate-400 text-xs md:text-sm">System Overview & Management</p>
               </div>
             </div>
             <button
@@ -294,45 +294,46 @@ export default function AdminDashboard({ isOpen, onClose }) {
           </div>
 
           {/* View Tabs */}
-          <div className="flex gap-2 mt-4">
+          <div className="flex flex-wrap gap-2 mt-4">
             <button
               onClick={() => setView('overview')}
-              className={`px-4 py-2 rounded-lg font-semibold transition ${
+              className={`px-3 md:px-4 py-2 rounded-lg text-sm md:text-base font-semibold transition ${
                 view === 'overview'
-                  ? 'bg-cyan-500 text-white'
-                  : 'bg-slate-800 text-slate-400 hover:text-white'
+                  ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-500/50'
+                  : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'
               }`}
             >
-              <BarChart3 size={16} className="inline mr-2" />
-              Overview
+              <BarChart3 size={16} className="inline mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Overview</span>
+              <span className="sm:hidden">Stats</span>
             </button>
             <button
               onClick={() => setView('users')}
-              className={`px-4 py-2 rounded-lg font-semibold transition ${
+              className={`px-3 md:px-4 py-2 rounded-lg text-sm md:text-base font-semibold transition ${
                 view === 'users'
-                  ? 'bg-cyan-500 text-white'
-                  : 'bg-slate-800 text-slate-400 hover:text-white'
+                  ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-500/50'
+                  : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'
               }`}
             >
-              <Users size={16} className="inline mr-2" />
+              <Users size={16} className="inline mr-1 md:mr-2" />
               Users ({stats.totalUsers})
             </button>
             <button
               onClick={() => setView('games')}
-              className={`px-4 py-2 rounded-lg font-semibold transition ${
+              className={`px-3 md:px-4 py-2 rounded-lg text-sm md:text-base font-semibold transition ${
                 view === 'games'
-                  ? 'bg-cyan-500 text-white'
-                  : 'bg-slate-800 text-slate-400 hover:text-white'
+                  ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-500/50'
+                  : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'
               }`}
             >
-              <TrendingUp size={16} className="inline mr-2" />
-              Active Games ({stats.totalGames})
+              <TrendingUp size={16} className="inline mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Active </span>Games ({stats.totalGames})
             </button>
           </div>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6">
           {loading ? (
             <div className="text-center py-12">
               <div className="inline-block w-12 h-12 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>

@@ -158,11 +158,11 @@ export default function GamesLanding() {
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-600/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
 
       {/* User Profile Button - Top Right */}
-      <div className="absolute top-6 right-6 z-20">
+      <div className="absolute top-4 right-4 md:top-6 md:right-6 z-20">
         <div className="relative">
           <button
             onClick={() => setShowUserMenu(!showUserMenu)}
-            className="flex items-center gap-3 bg-slate-900/80 backdrop-blur-sm border border-slate-700 rounded-full px-4 py-2 hover:bg-slate-800 transition"
+            className="flex items-center gap-2 md:gap-3 bg-slate-900/80 backdrop-blur-sm border border-slate-700 rounded-full px-3 py-2 md:px-4 hover:bg-slate-800 transition"
           >
             {currentUser?.photoURL ? (
               <img
@@ -179,7 +179,7 @@ export default function GamesLanding() {
             <div className={`w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 items-center justify-center ${currentUser?.photoURL ? 'hidden' : 'flex'}`}>
               <User size={20} className="text-white" />
             </div>
-            <span className="text-white font-semibold">
+            <span className="text-white font-semibold text-sm md:text-base hidden sm:inline">
               {currentUser?.displayName || 'Guest'}
               {isGuest && <span className="text-slate-400 text-sm ml-1">(Guest)</span>}
             </span>
@@ -285,13 +285,13 @@ export default function GamesLanding() {
       {/* Score Import Modal */}
       <ScoreImport isOpen={showScoreImport} onClose={() => setShowScoreImport(false)} />
 
-      <div className="relative z-10 min-h-screen p-6 flex items-center justify-center">
+      <div className="relative z-10 min-h-screen p-4 md:p-6 flex items-center justify-center">
         <div className="max-w-7xl w-full">
           {/* Header */}
-          <div className="text-center mb-16 space-y-4">
-            <div className="inline-flex items-center gap-3 bg-gradient-to-r from-purple-500/10 to-cyan-500/10 border border-purple-500/20 rounded-full px-6 py-2 mb-4">
-              <Sparkles className="text-purple-400" size={18} />
-              <span className="text-purple-300 text-sm font-semibold tracking-wide">MULTIPLAYER BOWLING GAMES</span>
+          <div className="text-center mb-12 md:mb-16 space-y-4 pt-16 sm:pt-0">
+            <div className="inline-flex items-center gap-2 md:gap-3 bg-gradient-to-r from-purple-500/10 to-cyan-500/10 border border-purple-500/20 rounded-full px-4 md:px-6 py-2 mb-4">
+              <Sparkles className="text-purple-400" size={16} />
+              <span className="text-purple-300 text-xs md:text-sm font-semibold tracking-wide">MULTIPLAYER BOWLING GAMES</span>
             </div>
 
             <h1 className="text-7xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 mb-4 tracking-tight">
