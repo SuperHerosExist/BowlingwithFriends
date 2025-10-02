@@ -566,6 +566,15 @@
   gap: 2rem;
 }
 
+.justify-center {
+  justify-content: center;
+}
+
+.bg-clip-text {
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
 .backdrop-blur-sm {
   backdrop-filter: blur(8px);
 }
