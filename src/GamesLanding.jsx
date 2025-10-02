@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Target, Dices, Trophy, ArrowLeft, Crown, Network, Sparkles, Zap, User, LogOut, BarChart3, Shield, Upload, Lock } from 'lucide-react';
 import MakesOrMisses from './games/MakesorMisses';
 import MatchPlay from './games/MatchPlay';
@@ -23,6 +23,24 @@ export default function GamesLanding() {
   const [showGuestRestrictionModal, setShowGuestRestrictionModal] = useState(false);
 
   const { currentUser, isGuest, isAdmin, signOut } = useAuth();
+  const userMenuRef = useRef(null);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setShowUserMenu(false);
+      }
+    };
+
+    if (showUserMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showUserMenu]);
 
   const games = [
     {
@@ -158,8 +176,8 @@ export default function GamesLanding() {
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-600/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
 
       {/* User Profile Button - Top Right */}
-      <div className="absolute top-4 right-4 md:top-6 md:right-6 z-20">
-        <div className="relative">
+      <div className="absolute top-4 right-4 md:top-6 md:right-6 z-50">
+        <div className="relative" ref={userMenuRef}>
           <button
             onClick={() => setShowUserMenu(!showUserMenu)}
             className="flex items-center gap-2 md:gap-3 bg-slate-900/80 backdrop-blur-sm border border-slate-700 rounded-full px-3 py-2 md:px-4 hover:bg-slate-800 transition"
@@ -187,7 +205,7 @@ export default function GamesLanding() {
 
           {/* User Menu Dropdown */}
           {showUserMenu && (
-            <div className="absolute top-full right-0 mt-2 w-64 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl overflow-hidden">
+            <div className="absolute top-full right-0 mt-2 w-56 sm:w-64 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl overflow-hidden z-50">
               {isGuest && (
                 <button
                   onClick={() => {
