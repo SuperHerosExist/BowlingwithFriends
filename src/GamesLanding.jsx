@@ -205,14 +205,14 @@ export default function GamesLanding() {
 
           {/* User Menu Dropdown */}
           {showUserMenu && (
-            <div className="absolute top-full right-0 mt-2 w-56 sm:w-64 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl overflow-hidden z-50">
+            <div className="absolute top-full right-0 mt-2 w-64 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border border-slate-700/50 rounded-xl shadow-2xl shadow-purple-500/20 overflow-hidden z-50 backdrop-blur-sm">
               {isGuest && (
                 <button
                   onClick={() => {
                     setShowAuthModal(true);
                     setShowUserMenu(false);
                   }}
-                  className="w-full px-4 py-3 text-left text-cyan-400 hover:bg-slate-800 transition flex items-center gap-3 border-b border-slate-800"
+                  className="w-full px-4 py-3 text-left text-cyan-400 hover:bg-slate-700/50 transition flex items-center gap-3 border-b border-slate-700/50"
                 >
                   <User size={18} />
                   Sign In / Register
@@ -223,7 +223,7 @@ export default function GamesLanding() {
                   setShowStats(true);
                   setShowUserMenu(false);
                 }}
-                className="w-full px-4 py-3 text-left text-white hover:bg-slate-800 transition flex items-center gap-3"
+                className="w-full px-4 py-3 text-left text-slate-100 hover:bg-slate-700/50 transition flex items-center gap-3"
               >
                 <BarChart3 size={18} />
                 View Stats
@@ -234,7 +234,7 @@ export default function GamesLanding() {
                     setShowAdmin(true);
                     setShowUserMenu(false);
                   }}
-                  className="w-full px-4 py-3 text-left text-purple-400 hover:bg-slate-800 transition flex items-center gap-3 border-t border-slate-800"
+                  className="w-full px-4 py-3 text-left text-purple-400 hover:bg-slate-700/50 transition flex items-center gap-3 border-t border-slate-700/50"
                 >
                   <Shield size={18} />
                   Admin Dashboard
@@ -246,7 +246,7 @@ export default function GamesLanding() {
                     await signOut();
                     setShowUserMenu(false);
                   }}
-                  className="w-full px-4 py-3 text-left text-red-400 hover:bg-slate-800 transition flex items-center gap-3 border-t border-slate-800"
+                  className="w-full px-4 py-3 text-left text-red-400 hover:bg-slate-700/50 transition flex items-center gap-3 border-t border-slate-700/50"
                 >
                   <LogOut size={18} />
                   Sign Out
