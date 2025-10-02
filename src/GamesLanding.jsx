@@ -205,14 +205,28 @@ export default function GamesLanding() {
 
           {/* User Menu Dropdown */}
           {showUserMenu && (
-            <div className="absolute top-full right-0 mt-2 w-64 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border border-slate-700/50 rounded-xl shadow-2xl shadow-purple-500/20 overflow-hidden z-50 backdrop-blur-sm">
+            <div
+              className="absolute top-full right-0 mt-2 w-64 border rounded-xl shadow-2xl overflow-hidden z-50"
+              style={{
+                background: 'linear-gradient(to bottom right, rgb(15, 23, 42), rgb(30, 41, 59), rgb(15, 23, 42))',
+                borderColor: 'rgba(51, 65, 85, 0.5)',
+                boxShadow: '0 25px 50px -12px rgba(168, 85, 247, 0.2)',
+                backdropFilter: 'blur(8px)'
+              }}
+            >
               {isGuest && (
                 <button
                   onClick={() => {
                     setShowAuthModal(true);
                     setShowUserMenu(false);
                   }}
-                  className="w-full px-4 py-3 text-left text-cyan-400 hover:bg-slate-700/50 transition flex items-center gap-3 border-b border-slate-700/50"
+                  className="w-full px-4 py-3 text-left text-cyan-400 transition flex items-center gap-3 border-b"
+                  style={{
+                    borderColor: 'rgba(51, 65, 85, 0.5)',
+                    backgroundColor: 'transparent'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(51, 65, 85, 0.5)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
                   <User size={18} />
                   Sign In / Register
@@ -223,7 +237,13 @@ export default function GamesLanding() {
                   setShowStats(true);
                   setShowUserMenu(false);
                 }}
-                className="w-full px-4 py-3 text-left text-slate-100 hover:bg-slate-700/50 transition flex items-center gap-3"
+                className="w-full px-4 py-3 text-left transition flex items-center gap-3"
+                style={{
+                  color: 'rgb(241, 245, 249)',
+                  backgroundColor: 'transparent'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(51, 65, 85, 0.5)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
                 <BarChart3 size={18} />
                 View Stats
@@ -234,7 +254,13 @@ export default function GamesLanding() {
                     setShowAdmin(true);
                     setShowUserMenu(false);
                   }}
-                  className="w-full px-4 py-3 text-left text-purple-400 hover:bg-slate-700/50 transition flex items-center gap-3 border-t border-slate-700/50"
+                  className="w-full px-4 py-3 text-left text-purple-400 transition flex items-center gap-3 border-t"
+                  style={{
+                    borderColor: 'rgba(51, 65, 85, 0.5)',
+                    backgroundColor: 'transparent'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(51, 65, 85, 0.5)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
                   <Shield size={18} />
                   Admin Dashboard
@@ -246,7 +272,13 @@ export default function GamesLanding() {
                     await signOut();
                     setShowUserMenu(false);
                   }}
-                  className="w-full px-4 py-3 text-left text-red-400 hover:bg-slate-700/50 transition flex items-center gap-3 border-t border-slate-700/50"
+                  className="w-full px-4 py-3 text-left text-red-400 transition flex items-center gap-3 border-t"
+                  style={{
+                    borderColor: 'rgba(51, 65, 85, 0.5)',
+                    backgroundColor: 'transparent'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(51, 65, 85, 0.5)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
                   <LogOut size={18} />
                   Sign Out

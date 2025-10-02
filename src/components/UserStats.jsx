@@ -55,9 +55,12 @@ export default function UserStats({ isOpen, onClose }) {
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-white transition"
+          className="absolute top-4 right-4 w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center transition"
+          style={{ color: 'rgb(148, 163, 184)' }}
+          onMouseEnter={(e) => e.currentTarget.style.color = 'rgb(255, 255, 255)'}
+          onMouseLeave={(e) => e.currentTarget.style.color = 'rgb(148, 163, 184)'}
         >
-          <X size={24} />
+          <X size={20} />
         </button>
 
         {/* Header */}
@@ -106,19 +109,19 @@ export default function UserStats({ isOpen, onClose }) {
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-slate-900/50 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-cyan-400">{stats?.makesOrMisses?.gamesPlayed || 0}</div>
+                  <div className="text-2xl font-bold" style={{ color: 'rgb(34, 211, 238)' }}>{stats?.makesOrMisses?.gamesPlayed || 0}</div>
                   <div className="text-sm text-slate-400">Games Played</div>
                 </div>
                 <div className="bg-slate-900/50 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-green-400">{stats?.makesOrMisses?.wins || 0}</div>
+                  <div className="text-2xl font-bold" style={{ color: 'rgb(74, 222, 128)' }}>{stats?.makesOrMisses?.wins || 0}</div>
                   <div className="text-sm text-slate-400">Wins</div>
                 </div>
                 <div className="bg-slate-900/50 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-red-400">{stats?.makesOrMisses?.losses || 0}</div>
+                  <div className="text-2xl font-bold" style={{ color: 'rgb(248, 113, 113)' }}>{stats?.makesOrMisses?.losses || 0}</div>
                   <div className="text-sm text-slate-400">Losses</div>
                 </div>
                 <div className="bg-slate-900/50 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-purple-400">{stats?.makesOrMisses?.totalPoints || 0}</div>
+                  <div className="text-2xl font-bold" style={{ color: 'rgb(192, 132, 252)' }}>{stats?.makesOrMisses?.totalPoints || 0}</div>
                   <div className="text-sm text-slate-400">Total Points</div>
                 </div>
               </div>
@@ -134,19 +137,19 @@ export default function UserStats({ isOpen, onClose }) {
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-slate-900/50 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-emerald-400">{stats?.matchPlay?.gamesPlayed || 0}</div>
+                  <div className="text-2xl font-bold" style={{ color: 'rgb(52, 211, 153)' }}>{stats?.matchPlay?.gamesPlayed || 0}</div>
                   <div className="text-sm text-slate-400">Matches Played</div>
                 </div>
                 <div className="bg-slate-900/50 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-green-400">{stats?.matchPlay?.wins || 0}</div>
+                  <div className="text-2xl font-bold" style={{ color: 'rgb(74, 222, 128)' }}>{stats?.matchPlay?.wins || 0}</div>
                   <div className="text-sm text-slate-400">Wins</div>
                 </div>
                 <div className="bg-slate-900/50 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-red-400">{stats?.matchPlay?.losses || 0}</div>
+                  <div className="text-2xl font-bold" style={{ color: 'rgb(248, 113, 113)' }}>{stats?.matchPlay?.losses || 0}</div>
                   <div className="text-sm text-slate-400">Losses</div>
                 </div>
                 <div className="bg-slate-900/50 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-yellow-400">{stats?.matchPlay?.ties || 0}</div>
+                  <div className="text-2xl font-bold" style={{ color: 'rgb(251, 191, 36)' }}>{stats?.matchPlay?.ties || 0}</div>
                   <div className="text-sm text-slate-400">Ties</div>
                 </div>
               </div>
@@ -162,15 +165,15 @@ export default function UserStats({ isOpen, onClose }) {
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div className="bg-slate-900/50 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-amber-400">{stats?.kingOfTheHill?.gamesPlayed || 0}</div>
+                  <div className="text-2xl font-bold" style={{ color: 'rgb(251, 191, 36)' }}>{stats?.kingOfTheHill?.gamesPlayed || 0}</div>
                   <div className="text-sm text-slate-400">Games Played</div>
                 </div>
                 <div className="bg-slate-900/50 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-yellow-400">{stats?.kingOfTheHill?.highGameWins || 0}</div>
+                  <div className="text-2xl font-bold" style={{ color: 'rgb(250, 204, 21)' }}>{stats?.kingOfTheHill?.highGameWins || 0}</div>
                   <div className="text-sm text-slate-400">High Game Wins</div>
                 </div>
                 <div className="bg-slate-900/50 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-orange-400">{stats?.kingOfTheHill?.highTotalWins || 0}</div>
+                  <div className="text-2xl font-bold" style={{ color: 'rgb(251, 146, 60)' }}>{stats?.kingOfTheHill?.highTotalWins || 0}</div>
                   <div className="text-sm text-slate-400">High Total Wins</div>
                 </div>
               </div>
@@ -186,15 +189,15 @@ export default function UserStats({ isOpen, onClose }) {
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div className="bg-slate-900/50 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-violet-400">{stats?.bracketPlay?.tournamentsPlayed || 0}</div>
+                  <div className="text-2xl font-bold" style={{ color: 'rgb(167, 139, 250)' }}>{stats?.bracketPlay?.tournamentsPlayed || 0}</div>
                   <div className="text-sm text-slate-400">Tournaments</div>
                 </div>
                 <div className="bg-slate-900/50 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-yellow-400">{stats?.bracketPlay?.championships || 0}</div>
+                  <div className="text-2xl font-bold" style={{ color: 'rgb(250, 204, 21)' }}>{stats?.bracketPlay?.championships || 0}</div>
                   <div className="text-sm text-slate-400">Championships</div>
                 </div>
                 <div className="bg-slate-900/50 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-slate-400">{stats?.bracketPlay?.runnerUps || 0}</div>
+                  <div className="text-2xl font-bold" style={{ color: 'rgb(203, 213, 225)' }}>{stats?.bracketPlay?.runnerUps || 0}</div>
                   <div className="text-sm text-slate-400">Runner-Ups</div>
                 </div>
               </div>

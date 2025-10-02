@@ -23,6 +23,9 @@ export default function AdminDashboard({ isOpen, onClose }) {
   const [view, setView] = useState('overview'); // 'overview', 'users', 'games'
   const [expandedGame, setExpandedGame] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null); // {type: 'user'|'stats', id: string, name: string}
+  const [selectedUsers, setSelectedUsers] = useState([]); // Array of selected user UIDs
+  const [selectedGames, setSelectedGames] = useState([]); // Array of selected game codes
+  const [selectAll, setSelectAll] = useState(false);
 
   useEffect(() => {
     if (isOpen && isAdmin) {
@@ -203,6 +206,44 @@ export default function AdminDashboard({ isOpen, onClose }) {
     }
   };
 
+  // Bulk delete selected users
+  const deleteBulkUsers = async () => {
+    try {
+      await Promise.all(selectedUsers.map(uid => remove(ref(database, `users/${uid}`))));
+      await fetchAdminData();
+      setSelectedUsers([]);
+      setSelectAll(false);
+      setDeleteConfirm(null);
+    } catch (error) {
+      console.error('Error deleting users:', error);
+      alert('Failed to delete selected users');
+    }
+  };
+
+  // Toggle select all users
+  const toggleSelectAll = () => {
+    if (selectAll) {
+      setSelectedUsers([]);
+    } else {
+      setSelectedUsers(users.map(u => u.uid));
+    }
+    setSelectAll(!selectAll);
+  };
+
+  // Toggle individual user selection
+  const toggleUserSelection = (uid) => {
+    if (selectedUsers.includes(uid)) {
+      setSelectedUsers(selectedUsers.filter(id => id !== uid));
+      setSelectAll(false);
+    } else {
+      const newSelection = [...selectedUsers, uid];
+      setSelectedUsers(newSelection);
+      if (newSelection.length === users.length) {
+        setSelectAll(true);
+      }
+    }
+  };
+
   if (!isOpen) return null;
   if (!isAdmin) {
     return (
@@ -233,11 +274,13 @@ export default function AdminDashboard({ isOpen, onClose }) {
           <div className="absolute inset-0 bg-black/80" onClick={() => setDeleteConfirm(null)}></div>
           <div className="relative bg-slate-800 border-2 border-red-600 rounded-xl p-6 max-w-md w-full">
             <h3 className="text-xl font-bold text-white mb-2">
-              Confirm {deleteConfirm.type === 'user' ? 'User Deletion' : deleteConfirm.type === 'bulk-games' ? 'Bulk Game Deletion' : deleteConfirm.type === 'game' ? 'Game Deletion' : 'Stats Reset'}
+              Confirm {deleteConfirm.type === 'user' ? 'User Deletion' : deleteConfirm.type === 'bulk-users' ? 'Bulk User Deletion' : deleteConfirm.type === 'bulk-games' ? 'Bulk Game Deletion' : deleteConfirm.type === 'game' ? 'Game Deletion' : 'Stats Reset'}
             </h3>
             <p className="text-slate-300 mb-6">
               {deleteConfirm.type === 'user'
                 ? `Are you sure you want to delete "${deleteConfirm.name}"? This action cannot be undone.`
+                : deleteConfirm.type === 'bulk-users'
+                ? `Delete ${selectedUsers.length} selected user(s)? All user data will be permanently removed. This action cannot be undone.`
                 : deleteConfirm.type === 'bulk-games'
                 ? `Delete ALL active games (${stats.totalGames} total)? All game data will be permanently removed. This action cannot be undone.`
                 : deleteConfirm.type === 'game'
@@ -255,6 +298,8 @@ export default function AdminDashboard({ isOpen, onClose }) {
                 onClick={() => {
                   if (deleteConfirm.type === 'user') {
                     deleteUser(deleteConfirm.id);
+                  } else if (deleteConfirm.type === 'bulk-users') {
+                    deleteBulkUsers();
                   } else if (deleteConfirm.type === 'bulk-games') {
                     deleteAllGames();
                   } else if (deleteConfirm.type === 'game') {
@@ -265,7 +310,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
                 }}
                 className="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition font-semibold"
               >
-                {deleteConfirm.type === 'game' || deleteConfirm.type === 'user' || deleteConfirm.type === 'bulk-games' ? 'Delete' : 'Reset'}
+                {deleteConfirm.type === 'game' || deleteConfirm.type === 'user' || deleteConfirm.type === 'bulk-games' || deleteConfirm.type === 'bulk-users' ? 'Delete' : 'Reset'}
               </button>
             </div>
           </div>
@@ -287,9 +332,12 @@ export default function AdminDashboard({ isOpen, onClose }) {
             </div>
             <button
               onClick={onClose}
-              className="text-slate-400 hover:text-white transition"
+              className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center transition"
+              style={{ color: 'rgb(148, 163, 184)' }}
+              onMouseEnter={(e) => e.currentTarget.style.color = 'rgb(255, 255, 255)'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'rgb(148, 163, 184)'}
             >
-              <X size={24} />
+              <X size={20} />
             </button>
           </div>
 
@@ -297,11 +345,12 @@ export default function AdminDashboard({ isOpen, onClose }) {
           <div className="flex flex-wrap gap-2 mt-4">
             <button
               onClick={() => setView('overview')}
-              className={`px-3 md:px-4 py-2 rounded-lg text-sm md:text-base font-semibold transition ${
-                view === 'overview'
-                  ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-500/50'
-                  : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'
-              }`}
+              className="px-3 md:px-4 py-2 rounded-lg text-sm md:text-base font-semibold transition"
+              style={{
+                backgroundColor: view === 'overview' ? 'rgb(8, 145, 178)' : 'rgb(30, 41, 59)',
+                color: view === 'overview' ? 'rgb(255, 255, 255)' : 'rgb(148, 163, 184)',
+                boxShadow: view === 'overview' ? '0 10px 15px -3px rgba(6, 182, 212, 0.5)' : 'none'
+              }}
             >
               <BarChart3 size={16} className="inline mr-1 md:mr-2" />
               <span className="hidden sm:inline">Overview</span>
@@ -309,22 +358,24 @@ export default function AdminDashboard({ isOpen, onClose }) {
             </button>
             <button
               onClick={() => setView('users')}
-              className={`px-3 md:px-4 py-2 rounded-lg text-sm md:text-base font-semibold transition ${
-                view === 'users'
-                  ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-500/50'
-                  : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'
-              }`}
+              className="px-3 md:px-4 py-2 rounded-lg text-sm md:text-base font-semibold transition"
+              style={{
+                backgroundColor: view === 'users' ? 'rgb(8, 145, 178)' : 'rgb(30, 41, 59)',
+                color: view === 'users' ? 'rgb(255, 255, 255)' : 'rgb(148, 163, 184)',
+                boxShadow: view === 'users' ? '0 10px 15px -3px rgba(6, 182, 212, 0.5)' : 'none'
+              }}
             >
               <Users size={16} className="inline mr-1 md:mr-2" />
               Users ({stats.totalUsers})
             </button>
             <button
               onClick={() => setView('games')}
-              className={`px-3 md:px-4 py-2 rounded-lg text-sm md:text-base font-semibold transition ${
-                view === 'games'
-                  ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-500/50'
-                  : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'
-              }`}
+              className="px-3 md:px-4 py-2 rounded-lg text-sm md:text-base font-semibold transition"
+              style={{
+                backgroundColor: view === 'games' ? 'rgb(8, 145, 178)' : 'rgb(30, 41, 59)',
+                color: view === 'games' ? 'rgb(255, 255, 255)' : 'rgb(148, 163, 184)',
+                boxShadow: view === 'games' ? '0 10px 15px -3px rgba(6, 182, 212, 0.5)' : 'none'
+              }}
             >
               <TrendingUp size={16} className="inline mr-1 md:mr-2" />
               <span className="hidden sm:inline">Active </span>Games ({stats.totalGames})
@@ -369,28 +420,28 @@ export default function AdminDashboard({ isOpen, onClose }) {
                     <h3 className="text-xl font-bold text-white mb-4">Games by Mode</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div className="flex items-center gap-3">
-                        <Target size={32} className="text-cyan-400" />
+                        <Target size={32} style={{ color: 'rgb(34, 211, 238)' }} />
                         <div>
                           <div className="text-2xl font-bold text-white">{games.makesOrMisses.length}</div>
                           <div className="text-xs text-slate-400">Makes or Misses</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <Trophy size={32} className="text-emerald-400" />
+                        <Trophy size={32} style={{ color: 'rgb(52, 211, 153)' }} />
                         <div>
                           <div className="text-2xl font-bold text-white">{games.matchPlay.length}</div>
                           <div className="text-xs text-slate-400">Match Play</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <Crown size={32} className="text-amber-400" />
+                        <Crown size={32} style={{ color: 'rgb(251, 191, 36)' }} />
                         <div>
                           <div className="text-2xl font-bold text-white">{games.kingOfTheHill.length}</div>
                           <div className="text-xs text-slate-400">King of the Hill</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <Network size={32} className="text-violet-400" />
+                        <Network size={32} style={{ color: 'rgb(167, 139, 250)' }} />
                         <div>
                           <div className="text-2xl font-bold text-white">{games.bracketPlay.length}</div>
                           <div className="text-xs text-slate-400">Bracket Play</div>
@@ -403,19 +454,45 @@ export default function AdminDashboard({ isOpen, onClose }) {
 
               {/* Users View */}
               {view === 'users' && (
-                <div className="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden">
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead className="bg-slate-900/50 border-b border-slate-700">
-                        <tr>
-                          <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">User</th>
-                          <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Email</th>
-                          <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Type</th>
-                          <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Joined</th>
-                          <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Total Games</th>
-                          <th className="px-4 py-3 text-right text-xs font-semibold text-slate-400 uppercase">Actions</th>
-                        </tr>
-                      </thead>
+                <div className="space-y-4">
+                  {/* Bulk Actions Bar */}
+                  {selectedUsers.length > 0 && (
+                    <div className="bg-cyan-900/30 border border-cyan-700 rounded-xl p-4 flex items-center justify-between">
+                      <span style={{ color: 'rgb(34, 211, 238)', fontWeight: 600 }}>{selectedUsers.length} user(s) selected</span>
+                      <button
+                        onClick={() => setDeleteConfirm({ type: 'bulk-users' })}
+                        className="px-4 py-2 rounded-lg transition flex items-center gap-2"
+                        style={{ backgroundColor: 'rgb(220, 38, 38)', color: 'rgb(255, 255, 255)' }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgb(185, 28, 28)'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgb(220, 38, 38)'}
+                      >
+                        <Trash2 size={16} />
+                        Delete Selected
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-slate-900/50 border-b border-slate-700">
+                          <tr>
+                            <th className="px-4 py-3 text-left w-12">
+                              <input
+                                type="checkbox"
+                                checked={selectAll}
+                                onChange={toggleSelectAll}
+                                className="w-4 h-4 rounded border-slate-600 text-cyan-600 focus:ring-cyan-500"
+                              />
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">User</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Email</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Type</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Joined</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Total Games</th>
+                            <th className="px-4 py-3 text-right text-xs font-semibold text-slate-400 uppercase">Actions</th>
+                          </tr>
+                        </thead>
                       <tbody className="divide-y divide-slate-700">
                         {users.map((user) => {
                           const totalGamesPlayed =
@@ -426,6 +503,14 @@ export default function AdminDashboard({ isOpen, onClose }) {
 
                           return (
                             <tr key={user.uid} className="hover:bg-slate-800/30">
+                              <td className="px-4 py-3">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedUsers.includes(user.uid)}
+                                  onChange={() => toggleUserSelection(user.uid)}
+                                  className="w-4 h-4 rounded border-slate-600 text-cyan-600 focus:ring-cyan-500"
+                                />
+                              </td>
                               <td className="px-4 py-3">
                                 <div className="flex items-center gap-2">
                                   {user.photoURL ? (
@@ -449,11 +534,29 @@ export default function AdminDashboard({ isOpen, onClose }) {
                               <td className="px-4 py-3 text-slate-400 text-sm">{user.email || '-'}</td>
                               <td className="px-4 py-3">
                                 {user.isAnonymous ? (
-                                  <span className="px-2 py-1 bg-amber-900/30 border border-amber-700 rounded text-amber-400 text-xs font-semibold">
+                                  <span
+                                    className="px-2 py-1 rounded text-xs font-semibold"
+                                    style={{
+                                      backgroundColor: 'rgba(120, 53, 15, 0.3)',
+                                      borderWidth: '1px',
+                                      borderStyle: 'solid',
+                                      borderColor: 'rgb(180, 83, 9)',
+                                      color: 'rgb(251, 191, 36)'
+                                    }}
+                                  >
                                     Guest
                                   </span>
                                 ) : (
-                                  <span className="px-2 py-1 bg-green-900/30 border border-green-700 rounded text-green-400 text-xs font-semibold">
+                                  <span
+                                    className="px-2 py-1 rounded text-xs font-semibold"
+                                    style={{
+                                      backgroundColor: 'rgba(20, 83, 45, 0.3)',
+                                      borderWidth: '1px',
+                                      borderStyle: 'solid',
+                                      borderColor: 'rgb(21, 128, 61)',
+                                      color: 'rgb(74, 222, 128)'
+                                    }}
+                                  >
                                     Authenticated
                                   </span>
                                 )}
@@ -487,6 +590,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
                     </table>
                   </div>
                 </div>
+              </div>
               )}
 
               {/* Games View */}
