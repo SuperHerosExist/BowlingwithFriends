@@ -33,7 +33,7 @@ export default function KingOfTheHill() {
   // Generate the join URL for QR code
   const getJoinURL = () => {
     const baseURL = window.location.origin + window.location.pathname;
-    return `${baseURL}?join=${gameCode}`;
+    return `${baseURL}?join=${gameCode}&game=king-of-the-hill`;
   };
 
   const generateGameCode = () => {

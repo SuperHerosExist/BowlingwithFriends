@@ -22,9 +22,39 @@ export default function GamesLanding() {
   const [showTopBowlers, setShowTopBowlers] = useState(false);
   const [showScoreImport, setShowScoreImport] = useState(false);
   const [showGuestRestrictionModal, setShowGuestRestrictionModal] = useState(false);
+  const [pendingJoin, setPendingJoin] = useState(null); // {gameId, joinCode}
 
   const { currentUser, isGuest, isAdmin, signOut } = useAuth();
   const userMenuRef = useRef(null);
+
+  // Check URL parameters for join invitation
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const joinCode = urlParams.get('join');
+    const gameParam = urlParams.get('game');
+
+    if (joinCode && gameParam) {
+      // Store pending join info
+      setPendingJoin({ gameId: gameParam, joinCode: joinCode.toUpperCase() });
+
+      // If guest or not logged in, show auth modal
+      if (!currentUser || isGuest) {
+        setShowAuthModal(true);
+      } else {
+        // User is authenticated, proceed to game
+        setSelectedGame(gameParam);
+      }
+    }
+  }, [currentUser, isGuest]);
+
+  // After authentication, process pending join
+  useEffect(() => {
+    if (pendingJoin && currentUser && !isGuest) {
+      setSelectedGame(pendingJoin.gameId);
+      // Clear URL params
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [currentUser, isGuest, pendingJoin]);
 
   // Close user menu when clicking outside
   useEffect(() => {
@@ -325,7 +355,11 @@ export default function GamesLanding() {
       </div>
 
       {/* Auth Modal */}
-      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        pendingInvite={pendingJoin}
+      />
 
       {/* Guest Restriction Modal */}
       {showGuestRestrictionModal && (

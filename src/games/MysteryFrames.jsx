@@ -39,7 +39,7 @@ export default function MysteryFrames() {
 
   const getJoinURL = () => {
     const baseURL = window.location.origin + window.location.pathname;
-    return `${baseURL}?join=${gameCode}`;
+    return `${baseURL}?join=${gameCode}&game=mystery-frames`;
   };
 
   const generateGameCode = () => {

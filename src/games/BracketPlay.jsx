@@ -33,7 +33,7 @@ export default function BracketPlay() {
 
   const getJoinURL = () => {
     const baseURL = window.location.origin + window.location.pathname;
-    return `${baseURL}?join=${gameCode}`;
+    return `${baseURL}?join=${gameCode}&game=bracket-play`;
   };
 
   const generateGameCode = () => {

@@ -33,7 +33,7 @@ export default function BowlingPredictor() {
   // Generate the join URL for QR code
   const getJoinURL = () => {
     const baseURL = window.location.origin + window.location.pathname;
-    return `${baseURL}?join=${gameCode}`;
+    return `${baseURL}?join=${gameCode}&game=makes-or-misses`;
   };
 
   const netPointsFor = (playerId) => {

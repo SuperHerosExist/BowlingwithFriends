@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, Mail, Lock, User as UserIcon } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 
-export default function AuthModal({ isOpen, onClose }) {
+export default function AuthModal({ isOpen, onClose, pendingInvite = null }) {
   const { signInWithGoogle, signUpWithEmail, signInWithEmail, continueAsGuest } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -114,6 +114,16 @@ export default function AuthModal({ isOpen, onClose }) {
 
         {/* Header */}
         <div className="text-center mb-8">
+          {pendingInvite && (
+            <div className="mb-4 p-3 rounded-lg" style={{ backgroundColor: 'rgba(34, 211, 238, 0.1)', border: '1px solid rgb(34, 211, 238)' }}>
+              <p className="text-sm font-semibold" style={{ color: 'rgb(34, 211, 238)' }}>
+                🎳 You've been invited to play!
+              </p>
+              <p className="text-xs mt-1" style={{ color: 'rgb(148, 163, 184)' }}>
+                Sign in to join the game
+              </p>
+            </div>
+          )}
           <h2 className="text-3xl font-bold text-white mb-2">
             {mode === 'signup' ? 'Create Account' : 'Welcome Back!'}
           </h2>
