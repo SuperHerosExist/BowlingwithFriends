@@ -669,6 +669,40 @@
   color: rgb(31, 41, 55);
 }
 
+/* Gradient backgrounds for dropdowns */
+.from-slate-900 {
+  --tw-gradient-from: rgb(15, 23, 42);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(15, 23, 42, 0));
+}
+
+.via-slate-800 {
+  --tw-gradient-stops: var(--tw-gradient-from), rgb(30, 41, 59), var(--tw-gradient-to, rgb(30, 41, 59, 0));
+}
+
+.to-slate-900 {
+  --tw-gradient-to: rgb(15, 23, 42);
+}
+
+/* Text colors */
+.text-slate-100 {
+  color: rgb(241, 245, 249);
+}
+
+/* Border opacity */
+.border-slate-700\/50 {
+  border-color: rgba(51, 65, 85, 0.5);
+}
+
+/* Background hover states */
+.hover\:bg-slate-700\/50:hover {
+  background-color: rgba(51, 65, 85, 0.5);
+}
+
+/* Shadows with color */
+.shadow-purple-500\/20 {
+  box-shadow: 0 25px 50px -12px rgba(168, 85, 247, 0.2);
+}
+
 .text-red-300 {
   color: rgb(252, 165, 165);
 }
