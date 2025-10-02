@@ -13,6 +13,10 @@ import TopBowlers from './components/TopBowlers';
 import ScoreImport from './components/ScoreImport';
 import AdBanner from './components/AdBanner';
 import RewardedAd from './components/RewardedAd';
+import SubscriptionModal from './components/SubscriptionModal';
+import CreditsModal from './components/CreditsModal';
+import UnlockGameModal from './components/UnlockGameModal';
+import { useUserPayment } from './hooks/useUserPayment';
 
 export default function GamesLanding() {
   const [selectedGame, setSelectedGame] = useState(null);
@@ -32,8 +36,13 @@ export default function GamesLanding() {
     return stored ? JSON.parse(stored) : {};
   });
   const [pendingJoin, setPendingJoin] = useState(null); // {gameId, joinCode}
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const [showCreditsModal, setShowCreditsModal] = useState(false);
+  const [showUnlockModal, setShowUnlockModal] = useState(false); // Modal showing unlock options
+  const [pendingGameId, setPendingGameId] = useState(null); // Game user wants to unlock with credits
 
   const { currentUser, isGuest, isAdmin, signOut } = useAuth();
+  const { credits, hasActiveSubscription, shouldShowAds, spendCredits } = useUserPayment(currentUser?.uid);
   const userMenuRef = useRef(null);
 
   // Check URL parameters for join invitation
@@ -137,27 +146,41 @@ export default function GamesLanding() {
 
   const handleGameSelect = (gameId) => {
     const game = games.find(g => g.id === gameId);
-    if (game.available) {
-      // Restrict guest users to Makes or Misses only
-      if (isGuest && gameId !== 'makes-or-misses') {
-        // Check if game is unlocked by watching ad
-        const unlockExpiry = adUnlockedGames[gameId];
-        const isUnlocked = unlockExpiry && Date.now() < unlockExpiry;
+    if (!game.available) return;
 
-        if (!isUnlocked) {
-          // Show rewarded ad to unlock
-          setRewardedGameName(game.name);
-          setShowRewardedAd(true);
-          return;
-        }
-      }
-      // Mystery Frames requires authentication (no guest access)
-      if (gameId === 'mystery-frames' && (!currentUser || isGuest)) {
-        setShowAuthModal(true);
+    // Free game - always accessible
+    if (gameId === 'makes-or-misses') {
+      setSelectedGame(gameId);
+      return;
+    }
+
+    // Subscribed users - full access
+    if (hasActiveSubscription) {
+      setSelectedGame(gameId);
+      return;
+    }
+
+    // Guest users - must watch ad or upgrade
+    if (isGuest) {
+      // Check if game is unlocked by watching ad
+      const unlockExpiry = adUnlockedGames[gameId];
+      const isUnlockedByAd = unlockExpiry && Date.now() < unlockExpiry;
+
+      if (isUnlockedByAd) {
+        setSelectedGame(gameId);
         return;
       }
-      setSelectedGame(gameId);
+
+      // Offer ad unlock or upgrade
+      setRewardedGameName(game.name);
+      setShowRewardedAd(true);
+      return;
     }
+
+    // Registered users without subscription - can use credits
+    // Show options: watch ad, use credits, or subscribe
+    setPendingGameId(gameId);
+    setShowUnlockModal(true);
   };
 
   const handleAdRewardGranted = () => {
@@ -174,6 +197,36 @@ export default function GamesLanding() {
 
     // Show guest restriction modal with success message
     setShowGuestRestrictionModal(true);
+  };
+
+  const handleUnlockWithCredits = async () => {
+    if (!pendingGameId) return;
+
+    const success = await spendCredits(1);
+    if (success) {
+      setShowUnlockModal(false);
+      setSelectedGame(pendingGameId);
+      setPendingGameId(null);
+    } else {
+      alert('Unable to unlock game. Please buy more credits.');
+    }
+  };
+
+  const handleUnlockModalWatchAd = () => {
+    setShowUnlockModal(false);
+    const game = games.find(g => g.id === pendingGameId);
+    setRewardedGameName(game?.name || '');
+    setShowRewardedAd(true);
+  };
+
+  const handleUnlockModalBuyCredits = () => {
+    setShowUnlockModal(false);
+    setShowCreditsModal(true);
+  };
+
+  const handleUnlockModalSubscribe = () => {
+    setShowUnlockModal(false);
+    setShowSubscriptionModal(true);
   };
 
   const handleBackToMenu = () => {
@@ -445,6 +498,36 @@ export default function GamesLanding() {
         gameName={rewardedGameName}
       />
 
+      {/* Unlock Game Modal */}
+      <UnlockGameModal
+        isOpen={showUnlockModal}
+        onClose={() => {
+          setShowUnlockModal(false);
+          setPendingGameId(null);
+        }}
+        gameName={games.find(g => g.id === pendingGameId)?.name || ''}
+        userCredits={credits}
+        onUseCredit={handleUnlockWithCredits}
+        onBuyCredits={handleUnlockModalBuyCredits}
+        onSubscribe={handleUnlockModalSubscribe}
+        onWatchAd={handleUnlockModalWatchAd}
+      />
+
+      {/* Subscription Modal */}
+      <SubscriptionModal
+        isOpen={showSubscriptionModal}
+        onClose={() => setShowSubscriptionModal(false)}
+        user={currentUser}
+      />
+
+      {/* Credits Modal */}
+      <CreditsModal
+        isOpen={showCreditsModal}
+        onClose={() => setShowCreditsModal(false)}
+        user={currentUser}
+        currentCredits={credits}
+      />
+
       <div className="relative z-10 min-h-screen p-4 md:p-6 flex items-center justify-center">
         <div className="max-w-7xl w-full">
           {/* Header */}
@@ -623,8 +706,8 @@ export default function GamesLanding() {
             )}
           </div>
 
-          {/* Ad Banner - Only for guests */}
-          {isGuest && (
+          {/* Ad Banner - Show for users without subscription */}
+          {shouldShowAds && (
             <div className="mt-12 mb-6">
               <AdBanner slot="1234567890" format="horizontal" responsive={true} />
             </div>

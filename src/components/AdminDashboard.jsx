@@ -26,6 +26,8 @@ export default function AdminDashboard({ isOpen, onClose }) {
   const [selectedUsers, setSelectedUsers] = useState([]); // Array of selected user UIDs
   const [selectedGames, setSelectedGames] = useState([]); // Array of selected game codes
   const [selectAll, setSelectAll] = useState(false);
+  const [editCreditsModal, setEditCreditsModal] = useState(null); // {uid, currentCredits}
+  const [editSubscriptionModal, setEditSubscriptionModal] = useState(null); // {uid, currentSubscription}
 
   useEffect(() => {
     if (isOpen && isAdmin) {
@@ -241,6 +243,55 @@ export default function AdminDashboard({ isOpen, onClose }) {
       if (newSelection.length === users.length) {
         setSelectAll(true);
       }
+    }
+  };
+
+  const handleEditCredits = (uid, currentCredits) => {
+    setEditCreditsModal({ uid, currentCredits });
+  };
+
+  const handleEditSubscription = (uid, currentSubscription) => {
+    setEditSubscriptionModal({ uid, currentSubscription: currentSubscription || {} });
+  };
+
+  const saveCredits = async (uid, newCredits) => {
+    try {
+      const userRef = ref(database, `users/${uid}`);
+      const snapshot = await get(userRef);
+      if (snapshot.exists()) {
+        const userData = snapshot.val();
+        await set(userRef, { ...userData, credits: parseInt(newCredits) || 0 });
+        setEditCreditsModal(null);
+        fetchAdminData();
+      }
+    } catch (error) {
+      console.error('Error updating credits:', error);
+      alert('Failed to update credits');
+    }
+  };
+
+  const saveSubscription = async (uid, isActive, plan, endDate) => {
+    try {
+      const userRef = ref(database, `users/${uid}`);
+      const snapshot = await get(userRef);
+      if (snapshot.exists()) {
+        const userData = snapshot.val();
+        await set(userRef, {
+          ...userData,
+          subscription: {
+            isActive,
+            plan: plan || null,
+            startDate: isActive ? Date.now() : null,
+            endDate: isActive && endDate ? new Date(endDate).getTime() : null,
+            stripeSubscriptionId: null
+          }
+        });
+        setEditSubscriptionModal(null);
+        fetchAdminData();
+      }
+    } catch (error) {
+      console.error('Error updating subscription:', error);
+      alert('Failed to update subscription');
     }
   };
 
@@ -494,6 +545,8 @@ export default function AdminDashboard({ isOpen, onClose }) {
                             <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">User</th>
                             <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Email</th>
                             <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Type</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Credits</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Subscription</th>
                             <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Joined</th>
                             <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Total Games</th>
                             <th className="px-4 py-3 text-right text-xs font-semibold text-slate-400 uppercase">Actions</th>
@@ -565,6 +618,44 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                   >
                                     Authenticated
                                   </span>
+                                )}
+                              </td>
+                              <td className="px-4 py-3">
+                                <button
+                                  onClick={() => handleEditCredits(user.uid, user.credits || 0)}
+                                  className="text-yellow-400 hover:text-yellow-300 font-semibold text-sm flex items-center gap-1"
+                                  title="Edit Credits"
+                                >
+                                  <span>{user.credits || 0}</span>
+                                  <Eye size={12} />
+                                </button>
+                              </td>
+                              <td className="px-4 py-3">
+                                {user.subscription?.isActive && user.subscription?.endDate && Date.now() < user.subscription.endDate ? (
+                                  <button
+                                    onClick={() => handleEditSubscription(user.uid, user.subscription)}
+                                    className="px-2 py-1 rounded text-xs font-semibold flex items-center gap-1"
+                                    style={{
+                                      backgroundColor: 'rgba(88, 28, 135, 0.3)',
+                                      borderWidth: '1px',
+                                      borderStyle: 'solid',
+                                      borderColor: 'rgb(147, 51, 234)',
+                                      color: 'rgb(196, 181, 253)'
+                                    }}
+                                    title="Edit Subscription"
+                                  >
+                                    ✓ Active
+                                    <Eye size={12} />
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={() => handleEditSubscription(user.uid, user.subscription)}
+                                    className="text-slate-500 hover:text-slate-400 text-xs font-semibold flex items-center gap-1"
+                                    title="Edit Subscription"
+                                  >
+                                    None
+                                    <Eye size={12} />
+                                  </button>
                                 )}
                               </td>
                               <td className="px-4 py-3 text-slate-400 text-sm">
@@ -915,6 +1006,116 @@ export default function AdminDashboard({ isOpen, onClose }) {
           )}
         </div>
       </div>
+
+      {/* Edit Credits Modal */}
+      {editCreditsModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/70" onClick={() => setEditCreditsModal(null)}></div>
+          <div className="relative bg-slate-800 border border-yellow-600 rounded-xl shadow-2xl max-w-md w-full p-6">
+            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <span className="text-yellow-400">💰</span> Edit User Credits
+            </h3>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const credits = e.target.credits.value;
+              saveCredits(editCreditsModal.uid, credits);
+            }}>
+              <div className="mb-4">
+                <label className="block text-sm font-semibold text-slate-300 mb-2">Credits Amount</label>
+                <input
+                  type="number"
+                  name="credits"
+                  defaultValue={editCreditsModal.currentCredits}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-yellow-500 focus:outline-none"
+                  min="0"
+                  required
+                />
+              </div>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setEditCreditsModal(null)}
+                  className="flex-1 bg-slate-700 text-white px-4 py-2 rounded-lg hover:bg-slate-600 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition font-semibold"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Subscription Modal */}
+      {editSubscriptionModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/70" onClick={() => setEditSubscriptionModal(null)}></div>
+          <div className="relative bg-slate-800 border border-purple-600 rounded-xl shadow-2xl max-w-md w-full p-6">
+            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <span className="text-purple-400">👑</span> Edit User Subscription
+            </h3>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const isActive = e.target.isActive.checked;
+              const plan = e.target.plan.value;
+              const endDate = e.target.endDate.value;
+              saveSubscription(editSubscriptionModal.uid, isActive, plan, endDate);
+            }}>
+              <div className="mb-4">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    name="isActive"
+                    defaultChecked={editSubscriptionModal.currentSubscription?.isActive || false}
+                    className="w-4 h-4 rounded border-slate-600 text-purple-600 focus:ring-purple-500"
+                  />
+                  <span className="text-sm font-semibold text-slate-300">Active Subscription</span>
+                </label>
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-semibold text-slate-300 mb-2">Plan Type</label>
+                <select
+                  name="plan"
+                  defaultValue={editSubscriptionModal.currentSubscription?.plan || 'monthly'}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-purple-500 focus:outline-none"
+                >
+                  <option value="monthly">Monthly</option>
+                  <option value="yearly">Yearly</option>
+                </select>
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-semibold text-slate-300 mb-2">End Date</label>
+                <input
+                  type="date"
+                  name="endDate"
+                  defaultValue={editSubscriptionModal.currentSubscription?.endDate ? new Date(editSubscriptionModal.currentSubscription.endDate).toISOString().split('T')[0] : ''}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-purple-500 focus:outline-none"
+                />
+              </div>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setEditSubscriptionModal(null)}
+                  className="flex-1 bg-slate-700 text-white px-4 py-2 rounded-lg hover:bg-slate-600 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition font-semibold"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -41,6 +41,14 @@ export function AuthProvider({ children }) {
         photoURL: user.photoURL || null,
         isAnonymous: user.isAnonymous,
         createdAt: Date.now(),
+        subscription: {
+          isActive: false,
+          plan: null, // 'monthly' or 'yearly'
+          startDate: null,
+          endDate: null,
+          stripeSubscriptionId: null
+        },
+        credits: 0,
         stats: {
           makesOrMisses: {
             gamesPlayed: 0,
