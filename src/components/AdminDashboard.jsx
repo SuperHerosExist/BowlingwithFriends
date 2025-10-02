@@ -185,6 +185,24 @@ export default function AdminDashboard({ isOpen, onClose }) {
     }
   };
 
+  const deleteAllGames = async () => {
+    try {
+      // Delete all game types
+      await Promise.all([
+        remove(ref(database, 'games')),
+        remove(ref(database, 'matchplay')),
+        remove(ref(database, 'kingofthehill')),
+        remove(ref(database, 'bracketplay'))
+      ]);
+
+      await fetchAdminData(); // Refresh data
+      setDeleteConfirm(null);
+    } catch (error) {
+      console.error('Error deleting all games:', error);
+      alert('Failed to delete all games');
+    }
+  };
+
   if (!isOpen) return null;
   if (!isAdmin) {
     return (
@@ -215,11 +233,13 @@ export default function AdminDashboard({ isOpen, onClose }) {
           <div className="absolute inset-0 bg-black/80" onClick={() => setDeleteConfirm(null)}></div>
           <div className="relative bg-slate-800 border-2 border-red-600 rounded-xl p-6 max-w-md w-full">
             <h3 className="text-xl font-bold text-white mb-2">
-              Confirm {deleteConfirm.type === 'user' ? 'User Deletion' : deleteConfirm.type === 'game' ? 'Game Deletion' : 'Stats Reset'}
+              Confirm {deleteConfirm.type === 'user' ? 'User Deletion' : deleteConfirm.type === 'bulk-games' ? 'Bulk Game Deletion' : deleteConfirm.type === 'game' ? 'Game Deletion' : 'Stats Reset'}
             </h3>
             <p className="text-slate-300 mb-6">
               {deleteConfirm.type === 'user'
                 ? `Are you sure you want to delete "${deleteConfirm.name}"? This action cannot be undone.`
+                : deleteConfirm.type === 'bulk-games'
+                ? `Delete ALL active games (${stats.totalGames} total)? All game data will be permanently removed. This action cannot be undone.`
                 : deleteConfirm.type === 'game'
                 ? `Delete game "${deleteConfirm.name}"? All game data will be permanently removed.`
                 : `Reset ${deleteConfirm.gameType === 'all' ? 'all stats' : `${deleteConfirm.gameType} stats`} for "${deleteConfirm.name}"?`}
@@ -235,6 +255,8 @@ export default function AdminDashboard({ isOpen, onClose }) {
                 onClick={() => {
                   if (deleteConfirm.type === 'user') {
                     deleteUser(deleteConfirm.id);
+                  } else if (deleteConfirm.type === 'bulk-games') {
+                    deleteAllGames();
                   } else if (deleteConfirm.type === 'game') {
                     deleteGame(deleteConfirm.gameType, deleteConfirm.id);
                   } else {
@@ -243,7 +265,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
                 }}
                 className="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition font-semibold"
               >
-                {deleteConfirm.type === 'game' || deleteConfirm.type === 'user' ? 'Delete' : 'Reset'}
+                {deleteConfirm.type === 'game' || deleteConfirm.type === 'user' || deleteConfirm.type === 'bulk-games' ? 'Delete' : 'Reset'}
               </button>
             </div>
           </div>
@@ -469,6 +491,22 @@ export default function AdminDashboard({ isOpen, onClose }) {
               {/* Games View */}
               {view === 'games' && (
                 <div className="space-y-6">
+                  {/* Bulk Delete Header */}
+                  {stats.totalGames > 0 && (
+                    <div className="flex justify-between items-center bg-slate-800/50 border border-slate-700 rounded-xl p-4">
+                      <div>
+                        <h3 className="text-lg font-bold text-white">All Active Games</h3>
+                        <p className="text-slate-400 text-sm">Total: {stats.totalGames} games</p>
+                      </div>
+                      <button
+                        onClick={() => setDeleteConfirm({ type: 'bulk-games', id: 'all', name: 'all games' })}
+                        className="px-4 py-2 bg-red-900/30 border border-red-700 rounded-lg hover:bg-red-900/50 transition flex items-center gap-2 text-red-400 font-semibold"
+                      >
+                        <Trash2 size={18} />
+                        Delete All Games
+                      </button>
+                    </div>
+                  )}
                   {/* Makes or Misses */}
                   {games.makesOrMisses.length > 0 && (
                     <div className="bg-slate-800/50 border border-cyan-700 rounded-xl p-4">
