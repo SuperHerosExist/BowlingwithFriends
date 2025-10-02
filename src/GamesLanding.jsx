@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Target, Dices, Trophy, ArrowLeft, Crown, Network, Sparkles, Zap, User, LogOut, BarChart3, Shield, Upload } from 'lucide-react';
+import { Target, Dices, Trophy, ArrowLeft, Crown, Network, Sparkles, Zap, User, LogOut, BarChart3, Shield, Upload, Lock } from 'lucide-react';
 import MakesOrMisses from './games/MakesorMisses';
 import MatchPlay from './games/MatchPlay';
 import KingOfTheHill from './games/KingOfTheHill';
@@ -20,6 +20,7 @@ export default function GamesLanding() {
   const [showAdmin, setShowAdmin] = useState(false);
   const [showTopBowlers, setShowTopBowlers] = useState(false);
   const [showScoreImport, setShowScoreImport] = useState(false);
+  const [showGuestRestrictionModal, setShowGuestRestrictionModal] = useState(false);
 
   const { currentUser, isGuest, isAdmin, signOut } = useAuth();
 
@@ -69,6 +70,11 @@ export default function GamesLanding() {
   const handleGameSelect = (gameId) => {
     const game = games.find(g => g.id === gameId);
     if (game.available) {
+      // Restrict guest users to Makes or Misses only
+      if (isGuest && gameId !== 'makes-or-misses') {
+        setShowGuestRestrictionModal(true);
+        return;
+      }
       setSelectedGame(gameId);
     }
   };
@@ -232,6 +238,37 @@ export default function GamesLanding() {
       {/* Auth Modal */}
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
 
+      {/* Guest Restriction Modal */}
+      {showGuestRestrictionModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShowGuestRestrictionModal(false)}></div>
+          <div className="relative bg-slate-900 border-2 border-purple-500 rounded-2xl shadow-2xl max-w-md w-full p-8">
+            <h2 className="text-3xl font-bold text-white mb-4">Register to Play</h2>
+            <p className="text-slate-300 mb-6">
+              Guest accounts can only access <span className="text-cyan-400 font-semibold">Makes or Misses</span>.
+              Sign up for a free account to unlock all game modes and track your stats!
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowGuestRestrictionModal(false);
+                  setShowAuthModal(true);
+                }}
+                className="flex-1 bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-semibold py-3 px-4 rounded-lg hover:shadow-lg hover:shadow-purple-500/50 transition"
+              >
+                Sign Up
+              </button>
+              <button
+                onClick={() => setShowGuestRestrictionModal(false)}
+                className="flex-1 bg-slate-800 text-slate-300 font-semibold py-3 px-4 rounded-lg hover:bg-slate-700 transition border border-slate-700"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* User Stats Modal */}
       <UserStats isOpen={showStats} onClose={() => setShowStats(false)} />
 
@@ -267,6 +304,7 @@ export default function GamesLanding() {
             {games.map((game) => {
               const Icon = game.icon;
               const isHovered = hoveredGame === game.id;
+              const isLocked = isGuest && game.id !== 'makes-or-misses';
 
               return (
                 <button
@@ -279,7 +317,7 @@ export default function GamesLanding() {
                     game.available
                       ? 'hover:scale-105 hover:border-slate-700 cursor-pointer hover:shadow-2xl'
                       : 'opacity-40 cursor-not-allowed'
-                  }`}
+                  } ${isLocked ? 'opacity-60' : ''}`}
                 >
                   {/* Glow Effect */}
                   {isHovered && game.available && (
@@ -295,10 +333,15 @@ export default function GamesLanding() {
                     </div>
 
                     {/* Icon */}
-                    <div className={`w-16 h-16 mx-auto mb-6 rounded-xl bg-gradient-to-br ${game.gradient} flex items-center justify-center transform ${
+                    <div className={`relative w-16 h-16 mx-auto mb-6 rounded-xl bg-gradient-to-br ${game.gradient} flex items-center justify-center transform ${
                       game.available ? 'group-hover:scale-110 group-hover:rotate-6' : ''
                     } transition-all duration-500 shadow-lg ${isHovered ? game.glowColor + ' shadow-2xl' : ''}`}>
                       <Icon size={32} className="text-white" />
+                      {isLocked && (
+                        <div className="absolute inset-0 bg-black/50 rounded-xl flex items-center justify-center">
+                          <Lock size={24} className="text-white" />
+                        </div>
+                      )}
                     </div>
 
                     {/* Title */}
