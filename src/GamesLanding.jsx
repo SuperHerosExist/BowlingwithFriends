@@ -11,6 +11,8 @@ import UserStats from './components/UserStats';
 import AdminDashboard from './components/AdminDashboard';
 import TopBowlers from './components/TopBowlers';
 import ScoreImport from './components/ScoreImport';
+import AdBanner from './components/AdBanner';
+import RewardedAd from './components/RewardedAd';
 
 export default function GamesLanding() {
   const [selectedGame, setSelectedGame] = useState(null);
@@ -22,6 +24,13 @@ export default function GamesLanding() {
   const [showTopBowlers, setShowTopBowlers] = useState(false);
   const [showScoreImport, setShowScoreImport] = useState(false);
   const [showGuestRestrictionModal, setShowGuestRestrictionModal] = useState(false);
+  const [showRewardedAd, setShowRewardedAd] = useState(false);
+  const [rewardedGameName, setRewardedGameName] = useState('');
+  const [adUnlockedGames, setAdUnlockedGames] = useState(() => {
+    // Load from localStorage
+    const stored = localStorage.getItem('adUnlockedGames');
+    return stored ? JSON.parse(stored) : {};
+  });
   const [pendingJoin, setPendingJoin] = useState(null); // {gameId, joinCode}
 
   const { currentUser, isGuest, isAdmin, signOut } = useAuth();
@@ -131,8 +140,16 @@ export default function GamesLanding() {
     if (game.available) {
       // Restrict guest users to Makes or Misses only
       if (isGuest && gameId !== 'makes-or-misses') {
-        setShowGuestRestrictionModal(true);
-        return;
+        // Check if game is unlocked by watching ad
+        const unlockExpiry = adUnlockedGames[gameId];
+        const isUnlocked = unlockExpiry && Date.now() < unlockExpiry;
+
+        if (!isUnlocked) {
+          // Show rewarded ad to unlock
+          setRewardedGameName(game.name);
+          setShowRewardedAd(true);
+          return;
+        }
       }
       // Mystery Frames requires authentication (no guest access)
       if (gameId === 'mystery-frames' && (!currentUser || isGuest)) {
@@ -141,6 +158,22 @@ export default function GamesLanding() {
       }
       setSelectedGame(gameId);
     }
+  };
+
+  const handleAdRewardGranted = () => {
+    // Unlock all games for 24 hours
+    const unlockTime = Date.now() + (24 * 60 * 60 * 1000); // 24 hours
+    const unlocked = {
+      'match-play': unlockTime,
+      'king-of-the-hill': unlockTime,
+      'bracket-play': unlockTime,
+      'mystery-frames': unlockTime
+    };
+    setAdUnlockedGames(unlocked);
+    localStorage.setItem('adUnlockedGames', JSON.stringify(unlocked));
+
+    // Show guest restriction modal with success message
+    setShowGuestRestrictionModal(true);
   };
 
   const handleBackToMenu = () => {
@@ -404,6 +437,14 @@ export default function GamesLanding() {
       {/* Score Import Modal */}
       <ScoreImport isOpen={showScoreImport} onClose={() => setShowScoreImport(false)} />
 
+      {/* Rewarded Ad Modal */}
+      <RewardedAd
+        isOpen={showRewardedAd}
+        onClose={() => setShowRewardedAd(false)}
+        onRewardGranted={handleAdRewardGranted}
+        gameName={rewardedGameName}
+      />
+
       <div className="relative z-10 min-h-screen p-4 md:p-6 flex items-center justify-center">
         <div className="max-w-7xl w-full">
           {/* Header */}
@@ -581,6 +622,13 @@ export default function GamesLanding() {
               </button>
             )}
           </div>
+
+          {/* Ad Banner - Only for guests */}
+          {isGuest && (
+            <div className="mt-12 mb-6">
+              <AdBanner slot="1234567890" format="horizontal" responsive={true} />
+            </div>
+          )}
 
           {/* Footer Stats */}
           <div className="flex flex-wrap justify-center gap-8 text-center">
