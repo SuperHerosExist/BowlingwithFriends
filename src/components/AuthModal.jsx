@@ -100,13 +100,16 @@ export default function AuthModal({ isOpen, onClose }) {
       ></div>
 
       {/* Modal */}
-      <div className="relative bg-slate-900 border-2 border-slate-700 rounded-2xl shadow-2xl max-w-md w-full p-8">
+      <div className="relative rounded-2xl shadow-2xl max-w-md w-full p-8" style={{ background: 'linear-gradient(to bottom right, rgb(15, 23, 42), rgb(30, 41, 59))', border: '2px solid rgb(51, 65, 85)' }}>
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-white transition"
+          className="absolute top-4 right-4 w-8 h-8 rounded-lg transition flex items-center justify-center"
+          style={{ backgroundColor: 'rgb(30, 41, 59)', color: 'rgb(255, 255, 255)' }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgb(51, 65, 85)'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgb(30, 41, 59)'}
         >
-          <X size={24} />
+          <X size={20} />
         </button>
 
         {/* Header */}

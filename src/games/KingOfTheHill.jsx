@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { UserPlus, QrCode, Trophy, Crown, DollarSign } from 'lucide-react';
+import { UserPlus, QrCode, Trophy, Crown, DollarSign, Lock } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { database } from '../firebase';
 import { ref, set, onValue, get } from 'firebase/database';
+import { useAuth } from '../AuthContext';
+import { isAdmin } from '../adminConfig';
 
 export default function KingOfTheHill() {
+  const { currentUser } = useAuth();
+  const isUserAdmin = currentUser && isAdmin(currentUser.email);
+  const isGuest = currentUser?.isAnonymous;
   const [gameCode, setGameCode] = useState('');
   const [joinCode, setJoinCode] = useState('');
   const [isHost, setIsHost] = useState(false);
@@ -67,6 +72,12 @@ export default function KingOfTheHill() {
   }, [gameCode]);
 
   const createGame = () => {
+    // Prevent guests from creating games with score entry
+    if (isGuest) {
+      alert('Please sign in to play King of the Hill. Guests can only play Makes or Misses.');
+      return;
+    }
+
     const code = generateGameCode();
     setGameCode(code);
     setIsHost(true);
@@ -88,6 +99,12 @@ export default function KingOfTheHill() {
 
   const joinGame = async () => {
     if (!joinCode.trim()) return;
+
+    // Prevent guests from joining games with score entry
+    if (isGuest) {
+      alert('Please sign in to play King of the Hill. Guests can only play Makes or Misses.');
+      return;
+    }
 
     const code = joinCode.toUpperCase();
     const gameRef = ref(database, `kingofthehill/${code}`);
@@ -122,7 +139,8 @@ export default function KingOfTheHill() {
     if (newPlayerName.trim() && !gameStarted) {
       const newPlayers = [...players, {
         id: Date.now(),
-        name: newPlayerName.trim()
+        name: newPlayerName.trim(),
+        uid: currentUser?.uid
       }];
       updateGame({ players: newPlayers });
       setNewPlayerName('');
@@ -143,7 +161,16 @@ export default function KingOfTheHill() {
       console.log('No game code');
       return;
     }
-    
+
+    // Check if user can edit this player's score
+    const playerToEdit = players.find(p => p.id === playerId);
+    const canEdit = isUserAdmin || playerToEdit?.uid === currentUser?.uid;
+
+    if (!canEdit) {
+      alert('You can only enter your own scores. Admins can enter any score.');
+      return;
+    }
+
     console.log('Updating score:', { gameNum, playerId, score });
     
     try {
@@ -422,31 +449,31 @@ export default function KingOfTheHill() {
                 </h3>
                 <div className="bg-slate-800/50 rounded-lg p-4 space-y-2 text-sm">
                   <p className="flex justify-between">
-                    <span className="text-primary">Entry Fee:</span>
-                    <span className="font-bold text-red-400">${entryFee}</span>
+                    <span style={{ color: 'rgb(148, 163, 184)' }}>Entry Fee:</span>
+                    <span className="font-bold" style={{ color: 'rgb(248, 113, 113)' }}>${entryFee}</span>
                   </p>
                   <p className="flex justify-between">
-                    <span className="text-primary">High Game 1:</span>
-                    <span className="font-bold text-green-400">${perGamePrize} per player</span>
+                    <span style={{ color: 'rgb(148, 163, 184)' }}>High Game 1:</span>
+                    <span className="font-bold" style={{ color: 'rgb(74, 222, 128)' }}>${perGamePrize} per player</span>
                   </p>
                   <p className="flex justify-between">
-                    <span className="text-primary">High Game 2:</span>
-                    <span className="font-bold text-green-400">${perGamePrize} per player</span>
+                    <span style={{ color: 'rgb(148, 163, 184)' }}>High Game 2:</span>
+                    <span className="font-bold" style={{ color: 'rgb(74, 222, 128)' }}>${perGamePrize} per player</span>
                   </p>
                   <p className="flex justify-between">
-                    <span className="text-primary">High Game 3:</span>
-                    <span className="font-bold text-green-400">${perGamePrize} per player</span>
+                    <span style={{ color: 'rgb(148, 163, 184)' }}>High Game 3:</span>
+                    <span className="font-bold" style={{ color: 'rgb(74, 222, 128)' }}>${perGamePrize} per player</span>
                   </p>
                   <p className="flex justify-between border-t border-slate-700 pt-2">
-                    <span className="text-primary font-semibold">High Totals:</span>
-                    <span className="font-bold text-purple-400">${totalsPrize} per player</span>
+                    <span style={{ color: 'rgb(148, 163, 184)', fontWeight: 600 }}>High Totals:</span>
+                    <span className="font-bold" style={{ color: 'rgb(192, 132, 252)' }}>${totalsPrize} per player</span>
                   </p>
                 </div>
               </div>
 
               <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 text-center">
-                <p className="text-purple-300">
-                  Share code <span className="font-mono font-bold text-xl">{gameCode}</span> with friends or show them the QR code!
+                <p style={{ color: 'rgb(216, 180, 254)' }}>
+                  Share code <span className="font-mono font-bold text-xl" style={{ color: 'rgb(255, 255, 255)' }}>{gameCode}</span> with friends or show them the QR code!
                 </p>
               </div>
 

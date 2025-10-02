@@ -206,10 +206,11 @@ export default function GamesLanding() {
           {/* User Menu Dropdown */}
           {showUserMenu && (
             <div
-              className="absolute top-full right-0 mt-2 w-64 border rounded-xl shadow-2xl overflow-hidden z-50"
+              className="absolute top-full right-0 mt-2 w-56 sm:w-64 rounded-xl overflow-hidden z-50"
               style={{
                 background: 'linear-gradient(to bottom right, rgb(15, 23, 42), rgb(30, 41, 59), rgb(15, 23, 42))',
                 borderColor: 'rgba(51, 65, 85, 0.5)',
+                border: '1px solid rgba(51, 65, 85, 0.5)',
                 boxShadow: '0 25px 50px -12px rgba(168, 85, 247, 0.2)',
                 backdropFilter: 'blur(8px)'
               }}
@@ -220,10 +221,11 @@ export default function GamesLanding() {
                     setShowAuthModal(true);
                     setShowUserMenu(false);
                   }}
-                  className="w-full px-4 py-3 text-left text-cyan-400 transition flex items-center gap-3 border-b"
+                  className="w-full px-4 py-3 text-left transition flex items-center gap-3"
                   style={{
-                    borderColor: 'rgba(51, 65, 85, 0.5)',
-                    backgroundColor: 'transparent'
+                    color: 'rgb(34, 211, 238)',
+                    backgroundColor: 'transparent',
+                    borderBottom: '1px solid rgba(51, 65, 85, 0.5)'
                   }}
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(51, 65, 85, 0.5)'}
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -254,10 +256,11 @@ export default function GamesLanding() {
                     setShowAdmin(true);
                     setShowUserMenu(false);
                   }}
-                  className="w-full px-4 py-3 text-left text-purple-400 transition flex items-center gap-3 border-t"
+                  className="w-full px-4 py-3 text-left transition flex items-center gap-3"
                   style={{
-                    borderColor: 'rgba(51, 65, 85, 0.5)',
-                    backgroundColor: 'transparent'
+                    color: 'rgb(192, 132, 252)',
+                    backgroundColor: 'transparent',
+                    borderTop: '1px solid rgba(51, 65, 85, 0.5)'
                   }}
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(51, 65, 85, 0.5)'}
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -272,10 +275,11 @@ export default function GamesLanding() {
                     await signOut();
                     setShowUserMenu(false);
                   }}
-                  className="w-full px-4 py-3 text-left text-red-400 transition flex items-center gap-3 border-t"
+                  className="w-full px-4 py-3 text-left transition flex items-center gap-3"
                   style={{
-                    borderColor: 'rgba(51, 65, 85, 0.5)',
-                    backgroundColor: 'transparent'
+                    color: 'rgb(248, 113, 113)',
+                    backgroundColor: 'transparent',
+                    borderTop: '1px solid rgba(51, 65, 85, 0.5)'
                   }}
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(51, 65, 85, 0.5)'}
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -451,7 +455,7 @@ export default function GamesLanding() {
 
                 {/* Title */}
                 <h2 className="text-xl font-bold text-white mb-2 tracking-tight">
-                  Top Bowlers
+                  Check Scores
                 </h2>
 
                 {/* Description */}

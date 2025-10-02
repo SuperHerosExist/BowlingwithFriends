@@ -271,12 +271,12 @@ export default function AdminDashboard({ isOpen, onClose }) {
       {/* Delete Confirmation Dialog */}
       {deleteConfirm && (
         <div className="absolute inset-0 z-10 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80" onClick={() => setDeleteConfirm(null)}></div>
-          <div className="relative bg-slate-800 border-2 border-red-600 rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold text-white mb-2">
+          <div className="absolute inset-0" style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)' }} onClick={() => setDeleteConfirm(null)}></div>
+          <div className="relative rounded-xl p-6 max-w-md w-full" style={{ background: 'linear-gradient(to bottom right, rgb(30, 41, 59), rgb(51, 65, 85))', border: '2px solid rgb(220, 38, 38)' }}>
+            <h3 className="text-xl font-bold mb-2" style={{ color: 'rgb(255, 255, 255)' }}>
               Confirm {deleteConfirm.type === 'user' ? 'User Deletion' : deleteConfirm.type === 'bulk-users' ? 'Bulk User Deletion' : deleteConfirm.type === 'bulk-games' ? 'Bulk Game Deletion' : deleteConfirm.type === 'game' ? 'Game Deletion' : 'Stats Reset'}
             </h3>
-            <p className="text-slate-300 mb-6">
+            <p className="mb-6" style={{ color: 'rgb(203, 213, 225)' }}>
               {deleteConfirm.type === 'user'
                 ? `Are you sure you want to delete "${deleteConfirm.name}"? This action cannot be undone.`
                 : deleteConfirm.type === 'bulk-users'
@@ -290,7 +290,10 @@ export default function AdminDashboard({ isOpen, onClose }) {
             <div className="flex gap-3">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="flex-1 bg-slate-700 text-white py-2 rounded-lg hover:bg-slate-600 transition"
+                className="flex-1 py-2 rounded-lg transition"
+                style={{ backgroundColor: 'rgb(51, 65, 85)', color: 'rgb(255, 255, 255)' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgb(71, 85, 105)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgb(51, 65, 85)'}
               >
                 Cancel
               </button>
@@ -308,7 +311,10 @@ export default function AdminDashboard({ isOpen, onClose }) {
                     resetUserStats(deleteConfirm.id, deleteConfirm.gameType === 'all' ? null : deleteConfirm.gameType);
                   }
                 }}
-                className="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition font-semibold"
+                className="flex-1 py-2 rounded-lg transition font-semibold"
+                style={{ backgroundColor: 'rgb(220, 38, 38)', color: 'rgb(255, 255, 255)' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgb(185, 28, 28)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgb(220, 38, 38)'}
               >
                 {deleteConfirm.type === 'game' || deleteConfirm.type === 'user' || deleteConfirm.type === 'bulk-games' || deleteConfirm.type === 'bulk-users' ? 'Delete' : 'Reset'}
               </button>

@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Users, QrCode, Trophy, DollarSign } from 'lucide-react';
+import { Users, QrCode, Trophy, DollarSign, Lock } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { database } from '../firebase';
 import { ref, set, onValue, get } from 'firebase/database';
+import { useAuth } from '../AuthContext';
+import { isAdmin } from '../adminConfig';
 
 export default function MatchPlay() {
+  const { currentUser } = useAuth();
+  const isUserAdmin = currentUser && isAdmin(currentUser.email);
+  const isGuest = currentUser?.isAnonymous;
   const [gameCode, setGameCode] = useState('');
   const [joinCode, setJoinCode] = useState('');
   const [isHost, setIsHost] = useState(false);
@@ -70,6 +75,12 @@ export default function MatchPlay() {
   }, [gameCode]);
 
   const createGame = () => {
+    // Prevent guests from creating games with score entry
+    if (isGuest) {
+      alert('Please sign in to play Match Play. Guests can only play Makes or Misses.');
+      return;
+    }
+
     const code = generateGameCode();
     setGameCode(code);
     setIsHost(true);
@@ -77,8 +88,8 @@ export default function MatchPlay() {
 
     const gameRef = ref(database, `matchplay/${code}`);
     set(gameRef, {
-      player1: { name: '', id: null },
-      player2: { name: '', id: null },
+      player1: { name: '', id: null, uid: null },
+      player2: { name: '', id: null, uid: null },
       gameStarted: false,
       currentGame: 1,
       scores: {
@@ -93,6 +104,12 @@ export default function MatchPlay() {
 
   const joinGame = async () => {
     if (!joinCode.trim()) return;
+
+    // Prevent guests from joining games with score entry
+    if (isGuest) {
+      alert('Please sign in to play Match Play. Guests can only play Makes or Misses.');
+      return;
+    }
 
     const code = joinCode.toUpperCase();
     const gameRef = ref(database, `matchplay/${code}`);
@@ -125,9 +142,9 @@ export default function MatchPlay() {
 
   const setPlayerName = (playerNum, name) => {
     if (playerNum === 1) {
-      updateGame({ player1: { name, id: Date.now() } });
+      updateGame({ player1: { name, id: Date.now(), uid: currentUser?.uid } });
     } else {
-      updateGame({ player2: { name, id: Date.now() } });
+      updateGame({ player2: { name, id: Date.now(), uid: currentUser?.uid } });
     }
   };
 
@@ -142,7 +159,16 @@ export default function MatchPlay() {
       console.log('No game code');
       return;
     }
-    
+
+    // Check if user can edit this player's score
+    const playerToEdit = playerNum === 1 ? player1 : player2;
+    const canEdit = isUserAdmin || playerToEdit.uid === currentUser?.uid;
+
+    if (!canEdit) {
+      alert('You can only enter your own scores. Admins can enter any score.');
+      return;
+    }
+
     console.log('Updating score:', { gameNum, playerNum, score });
     
     try {
@@ -384,8 +410,8 @@ export default function MatchPlay() {
           {!gameStarted ? (
             <div className="space-y-6">
               <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 text-center">
-                <p className="text-green-300">
-                  Share code <span className="font-mono font-bold text-xl">{gameCode}</span> with your opponent!
+                <p style={{ color: 'rgb(134, 239, 172)' }}>
+                  Share code <span className="font-mono font-bold text-xl" style={{ color: 'rgb(255, 255, 255)' }}>{gameCode}</span> with your opponent!
                 </p>
               </div>
 

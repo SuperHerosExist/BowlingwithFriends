@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { UserPlus, QrCode, Trophy, DollarSign, Shuffle, Network } from 'lucide-react';
+import { UserPlus, QrCode, Trophy, DollarSign, Shuffle, Network, Lock } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { database } from '../firebase';
 import { ref, set, onValue, get } from 'firebase/database';
+import { useAuth } from '../AuthContext';
+import { isAdmin } from '../adminConfig';
 
 export default function BracketPlay() {
+  const { currentUser } = useAuth();
+  const isUserAdmin = currentUser && isAdmin(currentUser.email);
+  const isGuest = currentUser?.isAnonymous;
   const [gameCode, setGameCode] = useState('');
   const [joinCode, setJoinCode] = useState('');
   const [isHost, setIsHost] = useState(false);
@@ -22,9 +27,9 @@ export default function BracketPlay() {
     champion: null
   });
   const [scores, setScores] = useState({});
-  const [entryFee] = useState(5);
+  const [entryFee, setEntryFee] = useState(5);
   const [firstPlacePrize, setFirstPlacePrize] = useState(0);
-  const [secondPlacePrize] = useState(10);
+  const [secondPlacePrize, setSecondPlacePrize] = useState(0);
 
   const getJoinURL = () => {
     const baseURL = window.location.origin + window.location.pathname;
@@ -45,9 +50,10 @@ export default function BracketPlay() {
 
   useEffect(() => {
     const totalPot = players.length * entryFee;
-    const remaining = totalPot - secondPlacePrize;
-    setFirstPlacePrize(remaining);
-  }, [players.length, entryFee, secondPlacePrize]);
+    // 60% to first place, 40% to second place
+    setFirstPlacePrize(Math.floor(totalPot * 0.6));
+    setSecondPlacePrize(Math.floor(totalPot * 0.4));
+  }, [players.length, entryFee]);
 
   useEffect(() => {
     if (!gameCode) return;
@@ -72,6 +78,12 @@ export default function BracketPlay() {
   }, [gameCode]);
 
   const createGame = () => {
+    // Prevent guests from creating games with score entry
+    if (isGuest) {
+      alert('Please sign in to play Bracket Play. Guests can only play Makes or Misses.');
+      return;
+    }
+
     const code = generateGameCode();
     setGameCode(code);
     setIsHost(true);
@@ -94,6 +106,12 @@ export default function BracketPlay() {
 
   const joinGame = async () => {
     if (!joinCode.trim()) return;
+
+    // Prevent guests from joining games with score entry
+    if (isGuest) {
+      alert('Please sign in to play Bracket Play. Guests can only play Makes or Misses.');
+      return;
+    }
 
     const code = joinCode.toUpperCase();
     const gameRef = ref(database, `bracketplay/${code}`);
@@ -128,7 +146,8 @@ export default function BracketPlay() {
     if (newPlayerName.trim() && !gameStarted && players.length < 8) {
       const newPlayers = [...players, {
         id: Date.now(),
-        name: newPlayerName.trim()
+        name: newPlayerName.trim(),
+        uid: currentUser?.uid
       }];
       await updateGame({ players: newPlayers });
       setNewPlayerName('');
@@ -563,20 +582,46 @@ export default function BracketPlay() {
                   <DollarSign className="text-green-400" size={20} />
                   Prize Structure
                 </h3>
+
+                {/* Entry Fee Selector */}
+                {players.length === 0 && (
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-2" style={{ color: 'rgb(148, 163, 184)' }}>
+                      Select Entry Fee:
+                    </label>
+                    <div className="grid grid-cols-4 gap-2">
+                      {[1, 2, 5, 10].map(amount => (
+                        <button
+                          key={amount}
+                          onClick={() => setEntryFee(amount)}
+                          className="px-4 py-2 rounded-lg transition"
+                          style={{
+                            backgroundColor: entryFee === amount ? 'rgb(139, 92, 246)' : 'rgb(30, 41, 59)',
+                            color: 'rgb(255, 255, 255)',
+                            border: entryFee === amount ? '2px solid rgb(167, 139, 250)' : '2px solid transparent'
+                          }}
+                        >
+                          ${amount}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="bg-slate-800/50 rounded-lg p-4 space-y-2 text-sm">
                   <p className="flex justify-between">
-                    <span className="text-primary">Entry Fee:</span>
-                    <span className="font-bold text-red-400">${entryFee}</span>
+                    <span style={{ color: 'rgb(148, 163, 184)' }}>Entry Fee:</span>
+                    <span className="font-bold" style={{ color: 'rgb(248, 113, 113)' }}>${entryFee}</span>
                   </p>
                   <p className="flex justify-between">
-                    <span className="text-primary">2nd Place:</span>
-                    <span className="font-bold text-primary">${secondPlacePrize}</span>
+                    <span style={{ color: 'rgb(148, 163, 184)' }}>2nd Place:</span>
+                    <span className="font-bold" style={{ color: 'rgb(203, 213, 225)' }}>${secondPlacePrize}</span>
                   </p>
                   <p className="flex justify-between border-t border-slate-700 pt-2">
-                    <span className="text-primary font-semibold">1st Place:</span>
-                    <span className="font-bold text-green-400">${firstPlacePrize}</span>
+                    <span style={{ color: 'rgb(148, 163, 184)', fontWeight: 600 }}>1st Place:</span>
+                    <span className="font-bold" style={{ color: 'rgb(74, 222, 128)' }}>${firstPlacePrize}</span>
                   </p>
-                  <p className="text-xs text-secondary mt-2">
+                  <p className="text-xs mt-2" style={{ color: 'rgb(100, 116, 139)' }}>
                     Total Prize Pool: ${players.length * entryFee}
                   </p>
                 </div>
@@ -584,7 +629,7 @@ export default function BracketPlay() {
 
               <div className="bg-slate-800/30 border border-slate-700 rounded-lg p-4">
                 <h3 className="font-semibold text-lg mb-2 text-white">Tournament Format</h3>
-                <ul className="text-sm text-primary space-y-1">
+                <ul className="text-sm space-y-1" style={{ color: 'rgb(148, 163, 184)' }}>
                   <li>• <strong className="text-white">Quarterfinals (Game 1):</strong> 8 players compete → 4 winners advance</li>
                   <li>• <strong className="text-white">Semifinals (Game 2):</strong> 4 players compete → 2 winners advance</li>
                   <li>• <strong className="text-white">Finals (Game 3):</strong> 2 players compete → Champion crowned</li>
@@ -592,8 +637,8 @@ export default function BracketPlay() {
               </div>
 
               <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 text-center">
-                <p className="text-orange-300">
-                  Share code <span className="font-mono font-bold text-xl">{gameCode}</span> with 7 friends!
+                <p style={{ color: 'rgb(253, 186, 116)' }}>
+                  Share code <span className="font-mono font-bold text-xl" style={{ color: 'rgb(255, 255, 255)' }}>{gameCode}</span> with 7 friends!
                 </p>
               </div>
 

@@ -14,7 +14,8 @@ export default function BowlingPredictor() {
   const [isHost, setIsHost] = useState(false);
   const [inGame, setInGame] = useState(false);
   const [showQR, setShowQR] = useState(false);
-  
+
+  // Makes or Misses state
   const [players, setPlayers] = useState([]);
   const [newPlayerName, setNewPlayerName] = useState('');
   const [currentRound, setCurrentRound] = useState(0);
@@ -22,6 +23,7 @@ export default function BowlingPredictor() {
   const [activePlayerChoice, setActivePlayerChoice] = useState(null);
   const [gameStarted, setGameStarted] = useState(false);
   const [ledger, setLedger] = useState({});
+
 
   const QUARTER = 0.25;
   const toMoney = (pts) => (pts * QUARTER).toFixed(2);
@@ -354,8 +356,8 @@ export default function BowlingPredictor() {
           {!gameStarted ? (
             <div className="space-y-6">
               <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 text-center">
-                <p className="text-cyan-300">
-                  Share code <span className="font-mono font-bold text-xl">{gameCode}</span> with friends or show them the QR code!
+                <p style={{ color: 'rgb(103, 232, 249)' }}>
+                  Share code <span className="font-mono font-bold text-xl" style={{ color: 'rgb(255, 255, 255)' }}>{gameCode}</span> with friends or show them the QR code!
                 </p>
               </div>
 
@@ -394,7 +396,18 @@ export default function BowlingPredictor() {
               <button
                 onClick={startGame}
                 disabled={players.length < 2}
-                className="w-full bg-green-500 text-white py-4 rounded-lg hover:bg-green-600 transition font-bold text-xl disabled:bg-gray-300 disabled:cursor-not-allowed"
+                className="w-full py-4 rounded-lg transition font-bold text-xl disabled:cursor-not-allowed"
+                style={{
+                  backgroundColor: players.length < 2 ? 'rgb(209, 213, 219)' : 'rgb(34, 197, 94)',
+                  color: 'rgb(255, 255, 255)',
+                  opacity: players.length < 2 ? 0.5 : 1
+                }}
+                onMouseEnter={(e) => {
+                  if (players.length >= 2) e.currentTarget.style.backgroundColor = 'rgb(22, 163, 74)';
+                }}
+                onMouseLeave={(e) => {
+                  if (players.length >= 2) e.currentTarget.style.backgroundColor = 'rgb(34, 197, 94)';
+                }}
               >
                 {players.length < 2 ? 'Need at least 2 players' : 'Start Game'}
               </button>
@@ -417,24 +430,36 @@ export default function BowlingPredictor() {
                     <div className="flex gap-4 mb-4">
                       <button
                         onClick={() => makeChoice('make')}
-                        disabled={activePlayerChoice !== null}
-                        className={`flex-1 py-4 rounded-lg font-bold text-lg transition ${
-                          activePlayerChoice === 'make'
-                            ? 'bg-green-500 text-white'
-                            : 'bg-slate-800/50 border-2 border-green-500 text-green-600 hover:bg-green-50'
-                        } disabled:opacity-50`}
+                        className="flex-1 py-4 rounded-lg font-bold text-lg transition"
+                        style={{
+                          backgroundColor: activePlayerChoice === 'make' ? 'rgb(34, 197, 94)' : 'rgba(30, 41, 59, 0.5)',
+                          border: '2px solid rgb(34, 197, 94)',
+                          color: activePlayerChoice === 'make' ? 'rgb(255, 255, 255)' : 'rgb(34, 197, 94)'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (activePlayerChoice !== 'make') e.currentTarget.style.backgroundColor = 'rgba(34, 197, 94, 0.1)';
+                        }}
+                        onMouseLeave={(e) => {
+                          if (activePlayerChoice !== 'make') e.currentTarget.style.backgroundColor = 'rgba(30, 41, 59, 0.5)';
+                        }}
                       >
                         <Check className="inline mr-2" size={24} />
                         Make
                       </button>
                       <button
                         onClick={() => makeChoice('miss')}
-                        disabled={activePlayerChoice !== null}
-                        className={`flex-1 py-4 rounded-lg font-bold text-lg transition ${
-                          activePlayerChoice === 'miss'
-                            ? 'bg-red-500 text-white'
-                            : 'bg-slate-800/50 border-2 border-red-500 text-red-600 hover:bg-red-50'
-                        } disabled:opacity-50`}
+                        className="flex-1 py-4 rounded-lg font-bold text-lg transition"
+                        style={{
+                          backgroundColor: activePlayerChoice === 'miss' ? 'rgb(239, 68, 68)' : 'rgba(30, 41, 59, 0.5)',
+                          border: '2px solid rgb(239, 68, 68)',
+                          color: activePlayerChoice === 'miss' ? 'rgb(255, 255, 255)' : 'rgb(239, 68, 68)'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (activePlayerChoice !== 'miss') e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+                        }}
+                        onMouseLeave={(e) => {
+                          if (activePlayerChoice !== 'miss') e.currentTarget.style.backgroundColor = 'rgba(30, 41, 59, 0.5)';
+                        }}
                       >
                         <X className="inline mr-2" size={24} />
                         Miss
@@ -460,14 +485,20 @@ export default function BowlingPredictor() {
                           <div className="flex gap-4">
                             <button
                               onClick={() => recordResult('make')}
-                              className="flex-1 bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition font-bold"
+                              className="flex-1 py-3 rounded-lg transition font-bold"
+                              style={{ backgroundColor: 'rgb(34, 197, 94)', color: 'rgb(255, 255, 255)' }}
+                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgb(22, 163, 74)'}
+                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgb(34, 197, 94)'}
                             >
                               <Check className="inline mr-2" size={20} />
                               Made It!
                             </button>
                             <button
                               onClick={() => recordResult('miss')}
-                              className="flex-1 bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition font-bold"
+                              className="flex-1 py-3 rounded-lg transition font-bold"
+                              style={{ backgroundColor: 'rgb(239, 68, 68)', color: 'rgb(255, 255, 255)' }}
+                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgb(220, 38, 38)'}
+                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgb(239, 68, 68)'}
                             >
                               <X className="inline mr-2" size={20} />
                               Missed!
@@ -533,11 +564,11 @@ export default function BowlingPredictor() {
                     const winnings = (player.score * QUARTER).toFixed(2);
                     const net = toMoney(netPointsFor(player.id));
                     return (
-                      <div key={player.id} className="flex justify-between items-center bg-slate-800/50 px-4 py-2 rounded-lg">
-                        <span className="font-semibold">
+                      <div key={player.id} className="flex justify-between items-center px-4 py-2 rounded-lg" style={{ backgroundColor: 'rgba(30, 41, 59, 0.5)' }}>
+                        <span className="font-semibold" style={{ color: 'rgb(255, 255, 255)' }}>
                           {idx === 0 && '🥇'} {idx === 1 && '🥈'} {idx === 2 && '🥉'} {player.name}
                         </span>
-                        <span className="font-bold text-purple-600 text-sm">
+                        <span className="font-bold text-sm" style={{ color: 'rgb(192, 132, 252)' }}>
                           {player.score} pts (${winnings}) · Net ${net}
                         </span>
                       </div>

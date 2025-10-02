@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Trophy, ExternalLink, X } from 'lucide-react';
+import { Trophy, ArrowLeft } from 'lucide-react';
 import { BOWLING_CENTERS, getCenterUrls, DEFAULT_CENTER } from '../centerConfig';
 
 export default function TopBowlers({ isOpen, onClose }) {
@@ -11,34 +11,70 @@ export default function TopBowlers({ isOpen, onClose }) {
   const currentCenter = BOWLING_CENTERS.find(c => c.id === selectedCenter);
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-br from-slate-900 to-slate-800 border-2 border-amber-500 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+    <div
+      className="fixed inset-0 flex items-center justify-center z-50 p-4"
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)', backdropFilter: 'blur(4px)' }}
+    >
+      <div
+        className="rounded-2xl w-full max-w-5xl h-[90vh] flex flex-col"
+        style={{
+          background: 'linear-gradient(to bottom right, rgb(15, 23, 42), rgb(30, 41, 59))',
+          border: '2px solid rgb(251, 191, 36)',
+          boxShadow: '0 25px 50px -12px rgba(251, 191, 36, 0.3)',
+        }}
+      >
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-amber-600 to-amber-700 p-6 flex justify-between items-center border-b-2 border-amber-500">
+        <div
+          className="p-4 md:p-6 flex justify-between items-center flex-shrink-0"
+          style={{
+            background: 'linear-gradient(to right, rgb(217, 119, 6), rgb(180, 83, 9))',
+            borderTopLeftRadius: '1rem',
+            borderTopRightRadius: '1rem',
+          }}
+        >
           <div className="flex items-center gap-3">
-            <Trophy size={32} className="text-white" />
+            <Trophy size={28} style={{ color: 'rgb(255, 255, 255)' }} />
             <div>
-              <h2 className="text-2xl font-bold text-white">Top Bowlers</h2>
-              <p className="text-amber-100 text-sm">Weekly Leaderboard</p>
+              <h2 className="text-xl md:text-2xl font-bold" style={{ color: 'rgb(255, 255, 255)' }}>
+                Top Bowlers
+              </h2>
+              <p className="text-xs md:text-sm" style={{ color: 'rgb(254, 243, 199)' }}>
+                Weekly Leaderboard
+              </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-amber-800 rounded-lg transition"
+            className="px-4 py-2 rounded-lg transition flex items-center gap-2 text-sm md:text-base font-semibold"
+            style={{ backgroundColor: 'rgb(30, 41, 59)', color: 'rgb(255, 255, 255)' }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgb(51, 65, 85)')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'rgb(30, 41, 59)')}
           >
-            <X size={24} className="text-white" />
+            <ArrowLeft size={20} />
+            <span className="hidden sm:inline">Back to Games</span>
           </button>
         </div>
 
         {/* Center Selection */}
-        <div className="p-6 border-b border-slate-700">
-          <label className="block text-sm font-semibold text-slate-300 mb-2">
+        <div
+          className="p-4 md:p-6 flex-shrink-0"
+          style={{ borderBottom: '1px solid rgb(51, 65, 85)' }}
+        >
+          <label
+            className="block text-sm font-semibold mb-2"
+            style={{ color: 'rgb(148, 163, 184)' }}
+          >
             Select Bowling Center
           </label>
           <select
             value={selectedCenter}
             onChange={(e) => setSelectedCenter(e.target.value)}
-            className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-amber-500"
+            className="w-full px-4 py-3 rounded-lg focus:outline-none"
+            style={{
+              backgroundColor: 'rgb(30, 41, 59)',
+              border: '1px solid rgb(71, 85, 105)',
+              color: 'rgb(255, 255, 255)',
+            }}
           >
             {BOWLING_CENTERS.map((center) => (
               <option key={center.id} value={center.id}>
@@ -48,58 +84,19 @@ export default function TopBowlers({ isOpen, onClose }) {
           </select>
         </div>
 
-        {/* Content */}
-        <div className="p-6">
-          <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-6 text-center">
-            <Trophy size={64} className="text-amber-500 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">
-              View {currentCenter?.name} Leaderboard
-            </h3>
-            <p className="text-slate-400 mb-6">
-              Click below to view the weekly top bowlers on Lanetalk Live Scoring
-            </p>
-
-            <div className="flex flex-col gap-3">
-              <a
-                href={centerUrls.scores}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold rounded-lg transition shadow-lg"
-              >
-                <Trophy size={20} />
-                View Top Bowlers
-                <ExternalLink size={16} />
-              </a>
-
-              <a
-                href={centerUrls.finished}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition"
-              >
-                View Finished Games
-                <ExternalLink size={16} />
-              </a>
-
-              <a
-                href={centerUrls.live}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition"
-              >
-                View Live Games
-                <ExternalLink size={16} />
-              </a>
-            </div>
-          </div>
-
-          {/* Info Section */}
-          <div className="mt-6 bg-blue-900/20 border border-blue-700 rounded-lg p-4">
-            <p className="text-sm text-blue-300">
-              <strong>Note:</strong> Leaderboard data is provided by Lanetalk Live Scoring.
-              Rankings update automatically as games are completed at the bowling center.
-            </p>
-          </div>
+        {/* Embedded Leaderboard */}
+        <div className="flex-1 overflow-y-auto">
+          <iframe
+            src={centerUrls.scores}
+            className="w-full"
+            style={{
+              height: '100%',
+              border: 'none',
+              borderBottomLeftRadius: '1rem',
+              borderBottomRightRadius: '1rem',
+            }}
+            title={`${currentCenter?.name} Top Bowlers Leaderboard`}
+          />
         </div>
       </div>
     </div>

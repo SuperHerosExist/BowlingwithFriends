@@ -2,7 +2,7 @@
 export const BOWLING_CENTERS = [
   {
     id: '668e3aca-5106-4c24-a9c1-2bd89926ebad',
-    name: 'Default Center', // Update with actual name
+    name: 'Sunshine Lanes', // Update with actual name
     url: 'https://livescore.lanetalk.com/livescoring/668e3aca-5106-4c24-a9c1-2bd89926ebad',
   },
   {
@@ -10,6 +10,12 @@ export const BOWLING_CENTERS = [
     name: 'Enterprise Lanes',
     url: 'https://livescore.lanetalk.com/livescoring/15903a3d-a2f1-48d8-ab8b-97c9476b688a',
   },
+  {
+    id: '4fc22569-ae38-44cf-9d2d-78d7034be9b7',
+    name: 'G3 Entertainment LLC',
+    url: 'https://livescore.lanetalk.com/livescoring/4fc22569-ae38-44cf-9d2d-78d7034be9b7',
+  },
+
 ];
 
 export const DEFAULT_CENTER = BOWLING_CENTERS[0];
