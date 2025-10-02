@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { UserPlus, Check, X, Trophy, QrCode, Users, Target } from 'lucide-react';
+import { UserPlus, Check, X, Trophy, QrCode, Users, Target, HelpCircle, X as XIcon } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { database } from '../firebase';
 import { ref, set, onValue, get } from 'firebase/database';
@@ -14,6 +14,7 @@ export default function BowlingPredictor() {
   const [isHost, setIsHost] = useState(false);
   const [inGame, setInGame] = useState(false);
   const [showQR, setShowQR] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
   // Makes or Misses state
   const [players, setPlayers] = useState([]);
@@ -51,6 +52,12 @@ export default function BowlingPredictor() {
     return Math.random().toString(36).substring(2, 8).toUpperCase();
   };
 
+  const toProperCase = (str) => {
+    return str.split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  };
+
   // Check URL for join code on component mount
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -84,10 +91,18 @@ export default function BowlingPredictor() {
     setGameCode(code);
     setIsHost(true);
     setInGame(true);
-    
+
+    // Auto-add creator as first player
+    const creatorName = currentUser?.displayName || currentUser?.email?.split('@')[0] || 'Player';
+    const initialPlayers = [{
+      id: Date.now(),
+      name: toProperCase(creatorName),
+      score: 0
+    }];
+
     const gameRef = ref(database, `games/${code}`);
     set(gameRef, {
-      players: [],
+      players: initialPlayers,
       currentRound: 0,
       activePlayerIndex: 0,
       activePlayerChoice: null,
@@ -99,15 +114,29 @@ export default function BowlingPredictor() {
 
   const joinGame = async () => {
     if (!joinCode.trim()) return;
-    
+
     const code = joinCode.toUpperCase();
     const gameRef = ref(database, `games/${code}`);
     const snapshot = await get(gameRef);
-    
+
     if (snapshot.exists()) {
       setGameCode(code);
       setIsHost(false);
       setInGame(true);
+
+      // Auto-add joiner as a player if not already in game
+      const gameData = snapshot.val();
+      const joinerName = currentUser?.displayName || currentUser?.email?.split('@')[0] || 'Player';
+      const existingPlayer = gameData.players?.find(p => p.name.toLowerCase() === joinerName.toLowerCase());
+
+      if (!existingPlayer && !gameData.gameStarted) {
+        const updatedPlayers = [...(gameData.players || []), {
+          id: Date.now(),
+          name: toProperCase(joinerName),
+          score: 0
+        }];
+        await set(gameRef, { ...gameData, players: updatedPlayers });
+      }
     } else {
       alert('Game not found! Check the code and try again.');
     }
@@ -129,10 +158,10 @@ export default function BowlingPredictor() {
 
   const addPlayer = () => {
     if (newPlayerName.trim() && !gameStarted) {
-      const newPlayers = [...players, { 
-        id: Date.now(), 
-        name: newPlayerName.trim(), 
-        score: 0 
+      const newPlayers = [...players, {
+        id: Date.now(),
+        name: toProperCase(newPlayerName.trim()),
+        score: 0
       }];
       updateGame({ players: newPlayers });
       setNewPlayerName('');
@@ -302,7 +331,17 @@ export default function BowlingPredictor() {
 
       <div className="game-content">
         <div className="game-max-width">
-          <div className="game-card">
+          <div className="game-card relative">
+            {/* Help Button - Top Right */}
+            <button
+              onClick={() => setShowHelp(true)}
+              className="absolute top-4 right-4 p-2 rounded-lg transition z-10"
+              style={{ backgroundColor: 'rgba(6, 182, 212, 0.2)', border: '1px solid rgb(6, 182, 212)', color: 'rgb(34, 211, 238)' }}
+              title="How to play"
+            >
+              <HelpCircle size={20} />
+            </button>
+
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-cyan-500 via-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/50">
@@ -324,6 +363,58 @@ export default function BowlingPredictor() {
                 </button>
               </div>
             </div>
+
+          {/* Help Modal */}
+          {showHelp && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setShowHelp(false)}>
+              <div className="absolute inset-0" style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)', backdropFilter: 'blur(4px)' }}></div>
+              <div className="relative rounded-xl max-w-md w-full p-6" style={{ background: 'linear-gradient(to bottom right, rgb(15, 23, 42), rgb(30, 41, 59))', border: '2px solid rgb(34, 211, 238)' }} onClick={(e) => e.stopPropagation()}>
+                <button
+                  onClick={() => setShowHelp(false)}
+                  className="absolute top-4 right-4 p-1 rounded-lg transition"
+                  style={{ backgroundColor: 'rgba(71, 85, 105, 0.5)', color: 'rgb(148, 163, 184)' }}
+                >
+                  <XIcon size={20} />
+                </button>
+
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br from-cyan-500 via-blue-500 to-indigo-600">
+                    <Target size={24} style={{ color: 'rgb(255, 255, 255)' }} />
+                  </div>
+                  <h2 className="text-2xl font-bold" style={{ color: 'rgb(34, 211, 238)' }}>How to Play</h2>
+                </div>
+
+                <div className="space-y-4" style={{ color: 'rgb(203, 213, 225)' }}>
+                  <div>
+                    <h3 className="font-bold mb-1" style={{ color: 'rgb(34, 211, 238)' }}>🎯 The Game</h3>
+                    <p className="text-sm">One player predicts "Make" or "Miss". Everyone else gets the opposite prediction automatically!</p>
+                  </div>
+
+                  <div>
+                    <h3 className="font-bold mb-1" style={{ color: 'rgb(34, 211, 238)' }}>💰 Scoring</h3>
+                    <p className="text-sm">Guess correctly? +1 point! Wrong? -1 point. Play 50 rounds and watch the leaderboard!</p>
+                  </div>
+
+                  <div>
+                    <h3 className="font-bold mb-1" style={{ color: 'rgb(34, 211, 238)' }}>📱 Quick Tips</h3>
+                    <ul className="text-sm space-y-1 list-disc list-inside">
+                      <li>Each round = $0.25 per point</li>
+                      <li>Players rotate who chooses</li>
+                      <li>Check the debt breakdown at the end!</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setShowHelp(false)}
+                  className="w-full mt-6 py-3 rounded-lg font-bold transition"
+                  style={{ background: 'linear-gradient(to right, rgb(6, 182, 212), rgb(59, 130, 246))', color: 'rgb(255, 255, 255)' }}
+                >
+                  Got it!
+                </button>
+              </div>
+            </div>
+          )}
 
           {showQR && (
             <div className="mb-6 bg-slate-800/50 border-2 border-slate-700 rounded-lg p-6">

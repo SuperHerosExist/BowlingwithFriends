@@ -84,19 +84,32 @@ export default function TopBowlers({ isOpen, onClose }) {
           </select>
         </div>
 
-        {/* Embedded Leaderboard */}
-        <div className="flex-1 overflow-y-auto">
-          <iframe
-            src={centerUrls.scores}
-            className="w-full"
-            style={{
-              height: '100%',
-              border: 'none',
-              borderBottomLeftRadius: '1rem',
-              borderBottomRightRadius: '1rem',
-            }}
-            title={`${currentCenter?.name} Top Bowlers Leaderboard`}
-          />
+        {/* Leaderboard Link */}
+        <div className="p-6 flex-1">
+          <div className="rounded-xl p-8 text-center" style={{ backgroundColor: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgb(51, 65, 85)' }}>
+            <Trophy size={80} className="mx-auto mb-6" style={{ color: 'rgb(251, 191, 36)' }} />
+            <h3 className="text-2xl font-bold mb-4" style={{ color: 'rgb(255, 255, 255)' }}>
+              View {currentCenter?.name} Leaderboard
+            </h3>
+            <p className="mb-8 text-lg" style={{ color: 'rgb(148, 163, 184)' }}>
+              Click below to view the weekly top bowlers on Lanetalk Live Scoring
+            </p>
+            <a
+              href={centerUrls.scores}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 px-8 py-4 font-bold rounded-lg transition text-lg"
+              style={{ background: 'linear-gradient(to right, rgb(217, 119, 6), rgb(180, 83, 9))', color: 'rgb(255, 255, 255)', boxShadow: '0 10px 15px -3px rgba(217, 119, 6, 0.5)' }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'linear-gradient(to right, rgb(180, 83, 9), rgb(146, 64, 14))'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'linear-gradient(to right, rgb(217, 119, 6), rgb(180, 83, 9))'}
+            >
+              <Trophy size={24} />
+              View Top Bowlers
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+          </div>
         </div>
       </div>
     </div>

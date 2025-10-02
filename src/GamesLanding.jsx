@@ -4,6 +4,7 @@ import MakesOrMisses from './games/MakesorMisses';
 import MatchPlay from './games/MatchPlay';
 import KingOfTheHill from './games/KingOfTheHill';
 import BracketPlay from './games/BracketPlay';
+import MysteryFrames from './games/MysteryFrames';
 import { useAuth } from './AuthContext';
 import AuthModal from './components/AuthModal';
 import UserStats from './components/UserStats';
@@ -82,6 +83,16 @@ export default function GamesLanding() {
       glowColor: 'shadow-violet-500/50',
       badge: '🏆 Tournament',
       available: true
+    },
+    {
+      id: 'mystery-frames',
+      name: 'Mystery Frames',
+      description: 'Quarters game with strike-based mystery bonuses',
+      icon: Zap,
+      gradient: 'from-amber-500 via-yellow-500 to-orange-600',
+      glowColor: 'shadow-amber-500/50',
+      badge: '⚡ Quarters + Bonus',
+      available: true
     }
   ];
 
@@ -91,6 +102,11 @@ export default function GamesLanding() {
       // Restrict guest users to Makes or Misses only
       if (isGuest && gameId !== 'makes-or-misses') {
         setShowGuestRestrictionModal(true);
+        return;
+      }
+      // Mystery Frames requires authentication (no guest access)
+      if (gameId === 'mystery-frames' && (!currentUser || isGuest)) {
+        setShowAuthModal(true);
         return;
       }
       setSelectedGame(gameId);
@@ -158,6 +174,21 @@ export default function GamesLanding() {
           Back to Games
         </button>
         <BracketPlay />
+      </div>
+    );
+  }
+
+  if (selectedGame === 'mystery-frames') {
+    return (
+      <div className="relative min-h-screen">
+        <button
+          onClick={handleBackToMenu}
+          className="fixed top-6 left-6 z-50 bg-gradient-to-r from-amber-500 to-yellow-500 text-white px-6 py-3 rounded-xl shadow-2xl hover:shadow-amber-500/50 hover:scale-105 transition-all flex items-center gap-2 font-bold"
+        >
+          <ArrowLeft size={20} />
+          Back to Games
+        </button>
+        <MysteryFrames />
       </div>
     );
   }
@@ -520,7 +551,7 @@ export default function GamesLanding() {
           {/* Footer Stats */}
           <div className="flex flex-wrap justify-center gap-8 text-center">
             <div className="bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-xl px-8 py-4">
-              <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">4</div>
+              <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">5</div>
               <div className="text-slate-500 text-sm font-semibold">Game Modes</div>
             </div>
             <div className="bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-xl px-8 py-4">
