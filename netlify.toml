@@ -4,8 +4,9 @@
   ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ."
 
 [build.environment]
-  # Disable secret detection for Firebase API keys (safe to expose)
-  NETLIFY_DISABLE_SECRET_DETECTION = "true"
+  # Omit specific files from secret scanning
+  # Firebase API keys are safe to expose in client-side apps
+  SECRETS_SCAN_OMIT_PATHS = "NETLIFY_SETUP.md,dist/**,netlify/functions/**"
 
 [[redirects]]
   from = "/*"

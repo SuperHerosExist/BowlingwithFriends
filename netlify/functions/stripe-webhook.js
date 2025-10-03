@@ -4,16 +4,15 @@ import { getDatabase, ref, get, set } from 'firebase/database';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-// Initialize Firebase (use your existing config)
+// Initialize Firebase using environment variables
 const firebaseConfig = {
-  apiKey: "AIzaSyDRfFfZd6ePEEv0kzYKXPxFDHDfEgjlnE8",
-  authDomain: "bowling-fun.firebaseapp.com",
-  databaseURL: "https://bowling-fun-default-rtdb.firebaseio.com",
-  projectId: "bowling-fun",
-  storageBucket: "bowling-fun.firebasestorage.app",
-  messagingSenderId: "821618091346",
-  appId: "1:821618091346:web:d99a4ea37d17d1c485e3d4",
-  measurementId: "G-MDBJR2J4EG"
+  apiKey: process.env.VITE_FIREBASE_API_KEY,
+  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN,
+  databaseURL: process.env.VITE_FIREBASE_DATABASE_URL,
+  projectId: process.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.VITE_FIREBASE_APP_ID
 };
 
 const app = initializeApp(firebaseConfig);
