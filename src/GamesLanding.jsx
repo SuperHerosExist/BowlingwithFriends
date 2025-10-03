@@ -8,6 +8,7 @@ import MysteryFrames from './games/MysteryFrames';
 import { useAuth } from './AuthContext';
 import AuthModal from './components/AuthModal';
 import UserStats from './components/UserStats';
+import UserProfileModal from './components/UserProfileModal';
 import AdminDashboard from './components/AdminDashboard';
 import TopBowlers from './components/TopBowlers';
 import ScoreImport from './components/ScoreImport';
@@ -24,6 +25,7 @@ export default function GamesLanding() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showStats, setShowStats] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
   const [showTopBowlers, setShowTopBowlers] = useState(false);
   const [showScoreImport, setShowScoreImport] = useState(false);
@@ -383,6 +385,22 @@ export default function GamesLanding() {
               )}
               <button
                 onClick={() => {
+                  setShowProfileModal(true);
+                  setShowUserMenu(false);
+                }}
+                className="w-full px-4 py-3 text-left transition flex items-center gap-3"
+                style={{
+                  color: 'rgb(241, 245, 249)',
+                  backgroundColor: 'transparent'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(51, 65, 85, 0.5)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                <User size={18} />
+                My Profile
+              </button>
+              <button
+                onClick={() => {
                   setShowStats(true);
                   setShowUserMenu(false);
                 }}
@@ -477,6 +495,13 @@ export default function GamesLanding() {
           </div>
         </div>
       )}
+
+      {/* User Profile Modal */}
+      <UserProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        onOpenStats={() => setShowStats(true)}
+      />
 
       {/* User Stats Modal */}
       <UserStats isOpen={showStats} onClose={() => setShowStats(false)} />
