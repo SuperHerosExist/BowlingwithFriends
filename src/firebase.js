@@ -5,13 +5,13 @@ import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBplm3Xt3Mru_Sxi2g3uptgbzXbQ8KZ0Aw",
-  authDomain: "bowling-fun.firebaseapp.com",
-  databaseURL: "https://bowling-fun-default-rtdb.firebaseio.com",
-  projectId: "bowling-fun",
-  storageBucket: "bowling-fun.firebasestorage.app",
-  messagingSenderId: "1041099466681",
-  appId: "1:1041099466681:web:55553970cd19f150dc3868"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 // Initialize Firebase
