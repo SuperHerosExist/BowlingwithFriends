@@ -95,10 +95,11 @@ export default function UserProfileModal({ isOpen, onClose, onOpenStats }) {
           <div className="flex gap-2 mb-6">
             <button
               onClick={() => setView('profile')}
-              className="px-4 py-2 rounded-lg font-semibold transition flex items-center gap-2"
+              className="flex-1 px-4 py-2 rounded-lg font-semibold transition flex items-center justify-center gap-2"
               style={{
-                backgroundColor: view === 'profile' ? 'rgb(8, 145, 178)' : 'rgb(30, 41, 59)',
-                color: view === 'profile' ? 'rgb(255, 255, 255)' : 'rgb(148, 163, 184)',
+                backgroundColor: view === 'profile' ? 'rgb(8, 145, 178)' : 'rgba(30, 41, 59, 0.5)',
+                color: 'rgb(255, 255, 255)',
+                border: view === 'profile' ? 'none' : '1px solid rgb(71, 85, 105)',
                 boxShadow: view === 'profile' ? '0 10px 15px -3px rgba(6, 182, 212, 0.5)' : 'none'
               }}
             >
@@ -107,10 +108,11 @@ export default function UserProfileModal({ isOpen, onClose, onOpenStats }) {
             </button>
             <button
               onClick={() => setView('purchase')}
-              className="px-4 py-2 rounded-lg font-semibold transition flex items-center gap-2"
+              className="flex-1 px-4 py-2 rounded-lg font-semibold transition flex items-center justify-center gap-2"
               style={{
-                backgroundColor: view === 'purchase' ? 'rgb(8, 145, 178)' : 'rgb(30, 41, 59)',
-                color: view === 'purchase' ? 'rgb(255, 255, 255)' : 'rgb(148, 163, 184)',
+                backgroundColor: view === 'purchase' ? 'rgb(8, 145, 178)' : 'rgba(30, 41, 59, 0.5)',
+                color: 'rgb(255, 255, 255)',
+                border: view === 'purchase' ? 'none' : '1px solid rgb(71, 85, 105)',
                 boxShadow: view === 'purchase' ? '0 10px 15px -3px rgba(6, 182, 212, 0.5)' : 'none'
               }}
             >

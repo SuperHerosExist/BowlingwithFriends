@@ -404,6 +404,21 @@ export default function UserStats({ isOpen, onClose }) {
                   }
                 };
 
+                const getJoinURL = () => {
+                  const gameParam = game.type === 'Makes or Misses' ? 'makes-or-misses'
+                    : game.type === 'Match Play' ? 'match-play'
+                    : game.type === 'King of the Hill' ? 'king-of-the-hill'
+                    : game.type === 'Bracket Play' ? 'bracket-play'
+                    : game.type === 'Mystery Frames' ? 'mystery-frames'
+                    : '';
+                  return `${window.location.origin}${window.location.pathname}?join=${game.code}&game=${gameParam}`;
+                };
+
+                // Calculate leaderboard for Makes or Misses
+                const makesOrMissesLeaderboard = game.type === 'Makes or Misses' && game.players
+                  ? [...game.players].sort((a, b) => (b.score || 0) - (a.score || 0))
+                  : null;
+
                 return (
                   <div
                     key={idx}
@@ -435,14 +450,48 @@ export default function UserStats({ isOpen, onClose }) {
                             </div>
                           )}
                           {game.type === 'Makes or Misses' && (
-                            <div className="text-cyan-400 font-semibold">
-                              My Score: {game.myScore} points {game.currentRound && `(Round ${game.currentRound}/50)`}
-                            </div>
+                            <>
+                              <div className="text-cyan-400 font-semibold">
+                                My Score: {game.myScore} points {game.currentRound && `(Round ${game.currentRound}/50)`}
+                              </div>
+                              {makesOrMissesLeaderboard && makesOrMissesLeaderboard.length > 0 && (
+                                <div className="mt-2 p-2 bg-slate-900/50 rounded">
+                                  <div className="text-xs text-slate-400 mb-1">Leaderboard:</div>
+                                  <div className="space-y-1">
+                                    {makesOrMissesLeaderboard.slice(0, 3).map((player, idx) => (
+                                      <div key={idx} className="flex justify-between text-xs">
+                                        <span className="text-white">
+                                          {idx === 0 && '🥇'} {idx === 1 && '🥈'} {idx === 2 && '🥉'} {player.name}
+                                        </span>
+                                        <span className="text-cyan-400 font-semibold">{player.score} pts</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </>
                           )}
                           {game.type === 'Mystery Frames' && (
-                            <div className="text-orange-400 font-semibold">
-                              My Winnings: ${game.myWinnings?.toFixed(2) || '0.00'} {game.currentFrame && `(Frame ${game.currentFrame})`}
-                            </div>
+                            <>
+                              <div className="text-orange-400 font-semibold">
+                                My Winnings: ${game.myWinnings?.toFixed(2) || '0.00'} {game.currentFrame && `(Frame ${game.currentFrame})`}
+                              </div>
+                              {game.players && game.players.length > 0 && (
+                                <div className="mt-2 p-2 bg-slate-900/50 rounded">
+                                  <div className="text-xs text-slate-400 mb-1">Winnings:</div>
+                                  <div className="space-y-1">
+                                    {[...game.players].sort((a, b) => (b.totalWinnings || 0) - (a.totalWinnings || 0)).slice(0, 3).map((player, idx) => (
+                                      <div key={idx} className="flex justify-between text-xs">
+                                        <span className="text-white">
+                                          {idx === 0 && '🥇'} {idx === 1 && '🥈'} {idx === 2 && '🥉'} {player.name}
+                                        </span>
+                                        <span className="text-orange-400 font-semibold">${(player.totalWinnings || 0).toFixed(2)}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </>
                           )}
                         </div>
                       </div>
@@ -455,8 +504,20 @@ export default function UserStats({ isOpen, onClose }) {
                             color: game.gameStarted ? 'rgb(74, 222, 128)' : 'rgb(251, 191, 36)'
                           }}
                         >
-                          {game.gameStarted ? 'Started' : 'Lobby'}
+                          {game.gameStarted ? 'In Progress' : 'Lobby'}
                         </span>
+                        <button
+                          onClick={() => {
+                            window.location.href = getJoinURL();
+                          }}
+                          className="px-3 py-1 rounded text-xs font-semibold transition"
+                          style={{
+                            backgroundColor: 'rgb(8, 145, 178)',
+                            color: 'rgb(255, 255, 255)'
+                          }}
+                        >
+                          Rejoin Game
+                        </button>
                       </div>
                     </div>
                   </div>
