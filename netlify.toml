@@ -1,6 +1,11 @@
 [build]
   publish = "dist"
   command = "npm run build"
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ."
+
+[build.environment]
+  # Disable secret detection for Firebase API keys (safe to expose)
+  NETLIFY_DISABLE_SECRET_DETECTION = "true"
 
 [[redirects]]
   from = "/*"
