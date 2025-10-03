@@ -17,8 +17,9 @@ export default function UnlockGameModal({
   const hasEnoughCredits = userCredits >= GAME_UNLOCK_COST;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl max-w-lg w-full border border-purple-500/30 shadow-2xl shadow-purple-500/20">
+    <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose}></div>
+      <div className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl max-w-lg w-full border border-purple-500/30 shadow-2xl shadow-purple-500/20">
         {/* Header */}
         <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 rounded-t-2xl relative overflow-hidden">
           <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
@@ -46,8 +47,8 @@ export default function UnlockGameModal({
             <div className="flex items-center gap-3">
               <Star className="w-6 h-6 text-yellow-400" />
               <div>
-                <div className="text-sm text-gray-400">Your Balance</div>
-                <div className="text-2xl font-bold text-white">{userCredits} Credits</div>
+                <div className="text-sm text-slate-400">Your Balance</div>
+                <div className="text-2xl font-bold text-yellow-400">{userCredits} Credits</div>
               </div>
             </div>
           </div>
@@ -68,7 +69,7 @@ export default function UnlockGameModal({
               </div>
               <div className="flex-1 text-left">
                 <div className="text-lg font-bold text-white">Use {GAME_UNLOCK_COST} Credit</div>
-                <div className="text-sm text-gray-400">Play without ads right now</div>
+                <div className="text-sm text-slate-400">Play without ads right now</div>
               </div>
               {hasEnoughCredits && (
                 <div className="text-cyan-400 font-bold">→</div>
@@ -87,7 +88,7 @@ export default function UnlockGameModal({
               </div>
               <div className="flex-1 text-left">
                 <div className="text-lg font-bold text-white">Watch Ad</div>
-                <div className="text-sm text-gray-400">Free 24-hour access to all games</div>
+                <div className="text-sm text-slate-400">Free 24-hour access to all games</div>
               </div>
               <div className="text-blue-400 font-bold">→</div>
             </div>
@@ -104,7 +105,7 @@ export default function UnlockGameModal({
               </div>
               <div className="flex-1 text-left">
                 <div className="text-lg font-bold text-white">Buy Credits</div>
-                <div className="text-sm text-gray-400">Starting at $0.99 for 10 credits</div>
+                <div className="text-sm text-slate-400">Starting at $0.99 for 10 credits</div>
               </div>
               <div className="text-purple-400 font-bold">→</div>
             </div>
@@ -124,7 +125,7 @@ export default function UnlockGameModal({
               </div>
               <div className="flex-1 text-left">
                 <div className="text-lg font-bold text-white">Go Ad-Free</div>
-                <div className="text-sm text-gray-400">$2.99/month - Unlimited access</div>
+                <div className="text-sm text-slate-400">$2.99/month - Unlimited access</div>
               </div>
               <div className="text-yellow-400 font-bold">→</div>
             </div>
