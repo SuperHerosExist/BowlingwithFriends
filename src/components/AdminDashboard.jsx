@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Users, TrendingUp, X, BarChart3, Target, Trophy, Crown, Network, Trash2, RefreshCw, Eye, ChevronDown, ChevronUp } from 'lucide-react';
+import { Shield, Users, TrendingUp, X, BarChart3, Target, Trophy, Crown, Network, Trash2, RefreshCw, Eye, ChevronDown, ChevronUp, UserCog } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { database } from '../firebase';
 import { ref, get, remove, set } from 'firebase/database';
+import { ADMIN_EMAILS, SUPER_ADMIN_EMAIL, isSuperAdmin } from '../adminConfig';
 
 export default function AdminDashboard({ isOpen, onClose }) {
-  const { isAdmin } = useAuth();
+  const { isAdmin, user: currentUser } = useAuth();
+  const isCurrentUserSuperAdmin = isSuperAdmin(currentUser);
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
   const [games, setGames] = useState({
@@ -28,6 +30,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
   const [selectAll, setSelectAll] = useState(false);
   const [editCreditsModal, setEditCreditsModal] = useState(null); // {uid, currentCredits}
   const [editSubscriptionModal, setEditSubscriptionModal] = useState(null); // {uid, currentSubscription}
+  const [editRoleModal, setEditRoleModal] = useState(null); // {uid, currentRole, email}
 
   useEffect(() => {
     if (isOpen && isAdmin) {
@@ -295,6 +298,38 @@ export default function AdminDashboard({ isOpen, onClose }) {
     }
   };
 
+  const handleEditRole = (uid, email) => {
+    const role = getUserRole(email);
+    setEditRoleModal({ uid, email, currentRole: role });
+  };
+
+  const saveRole = async (uid, email, newRole) => {
+    try {
+      const userRef = ref(database, `users/${uid}`);
+      const snapshot = await get(userRef);
+      if (snapshot.exists()) {
+        const userData = snapshot.val();
+        await set(userRef, {
+          ...userData,
+          adminRole: newRole === 'user' ? null : newRole
+        });
+        setEditRoleModal(null);
+        fetchAdminData();
+      }
+    } catch (error) {
+      console.error('Error updating role:', error);
+      alert('Failed to update role');
+    }
+  };
+
+  const getUserRole = (email) => {
+    if (!email) return 'user';
+    const lowerEmail = email.toLowerCase();
+    if (lowerEmail === SUPER_ADMIN_EMAIL.toLowerCase()) return 'superadmin';
+    if (ADMIN_EMAILS.includes(lowerEmail)) return 'admin';
+    return 'user';
+  };
+
   if (!isOpen) return null;
   if (!isAdmin) {
     return (
@@ -545,6 +580,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
                             <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">User</th>
                             <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Email</th>
                             <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Type</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Role</th>
                             <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Credits</th>
                             <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Subscription</th>
                             <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Joined</th>
@@ -619,6 +655,60 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                     Authenticated
                                   </span>
                                 )}
+                              </td>
+                              <td className="px-4 py-3">
+                                {(() => {
+                                  const role = getUserRole(user.email);
+                                  if (role === 'superadmin') {
+                                    return (
+                                      <span
+                                        className="px-2 py-1 rounded text-xs font-semibold flex items-center gap-1 w-fit"
+                                        style={{
+                                          backgroundColor: 'rgba(147, 51, 234, 0.3)',
+                                          borderWidth: '1px',
+                                          borderStyle: 'solid',
+                                          borderColor: 'rgb(147, 51, 234)',
+                                          color: 'rgb(196, 181, 253)'
+                                        }}
+                                      >
+                                        <Shield size={12} />
+                                        Super Admin
+                                      </span>
+                                    );
+                                  } else if (role === 'admin') {
+                                    return (
+                                      <button
+                                        onClick={() => isCurrentUserSuperAdmin && handleEditRole(user.uid, user.email)}
+                                        className="px-2 py-1 rounded text-xs font-semibold flex items-center gap-1"
+                                        style={{
+                                          backgroundColor: 'rgba(6, 182, 212, 0.3)',
+                                          borderWidth: '1px',
+                                          borderStyle: 'solid',
+                                          borderColor: 'rgb(6, 182, 212)',
+                                          color: 'rgb(103, 232, 249)'
+                                        }}
+                                        disabled={!isCurrentUserSuperAdmin}
+                                        title={isCurrentUserSuperAdmin ? 'Edit Role' : 'Admin'}
+                                      >
+                                        <UserCog size={12} />
+                                        Admin
+                                        {isCurrentUserSuperAdmin && <Eye size={10} />}
+                                      </button>
+                                    );
+                                  } else {
+                                    return (
+                                      <button
+                                        onClick={() => isCurrentUserSuperAdmin && handleEditRole(user.uid, user.email)}
+                                        className="text-slate-500 hover:text-slate-400 text-xs font-semibold flex items-center gap-1"
+                                        disabled={!isCurrentUserSuperAdmin}
+                                        title={isCurrentUserSuperAdmin ? 'Edit Role' : 'User'}
+                                      >
+                                        User
+                                        {isCurrentUserSuperAdmin && <Eye size={10} />}
+                                      </button>
+                                    );
+                                  }
+                                })()}
                               </td>
                               <td className="px-4 py-3">
                                 <button
@@ -1113,6 +1203,67 @@ export default function AdminDashboard({ isOpen, onClose }) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Role Modal */}
+      {editRoleModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/70" onClick={() => setEditRoleModal(null)}></div>
+          <div className="relative bg-slate-800 border border-cyan-600 rounded-xl shadow-2xl max-w-md w-full p-6">
+            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <UserCog className="text-cyan-400" size={24} />
+              Edit User Role
+            </h3>
+            <div className="mb-4 p-3 bg-slate-900/50 rounded-lg">
+              <div className="text-sm text-slate-400">User Email</div>
+              <div className="text-white font-mono">{editRoleModal.email || 'No email'}</div>
+            </div>
+            {editRoleModal.currentRole === 'superadmin' ? (
+              <div className="mb-4 p-4 bg-purple-900/20 border border-purple-700 rounded-lg">
+                <p className="text-purple-300 text-sm">
+                  <Shield size={16} className="inline mr-2" />
+                  Super Admin role cannot be changed. This is the ultimate administrator.
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const newRole = e.target.role.value;
+                saveRole(editRoleModal.uid, editRoleModal.email, newRole);
+              }}>
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold text-slate-300 mb-2">Role</label>
+                  <select
+                    name="role"
+                    defaultValue={editRoleModal.currentRole}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-cyan-500 focus:outline-none"
+                  >
+                    <option value="user">User (Regular access)</option>
+                    <option value="admin">Admin (Dashboard access)</option>
+                  </select>
+                  <p className="text-xs text-slate-500 mt-2">
+                    Admins can view and manage users, games, and statistics.
+                  </p>
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setEditRoleModal(null)}
+                    className="flex-1 bg-slate-700 text-white px-4 py-2 rounded-lg hover:bg-slate-600 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700 transition font-semibold"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}
