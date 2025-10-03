@@ -781,6 +781,90 @@ export default function MysteryFrames() {
                 </div>
               </div>
 
+              {/* Debt Ledger */}
+              <div className="rounded-lg p-6" style={{ background: 'linear-gradient(to right, rgba(30, 41, 59, 0.5), rgba(217, 119, 6, 0.2))', border: '1px solid rgb(71, 85, 105)' }}>
+                <h3 className="font-bold text-lg mb-4 flex items-center gap-2" style={{ color: 'rgb(255, 255, 255)' }}>
+                  <DollarSign style={{ color: 'rgb(251, 191, 36)' }} size={24} />
+                  Who Owes Whom
+                </h3>
+                <div className="space-y-2">
+                  {(() => {
+                    // Calculate average winnings
+                    const totalWinnings = players.reduce((sum, p) => sum + (p.totalWinnings || 0), 0);
+                    const avgWinnings = totalWinnings / players.length;
+
+                    // Find creditors (won more than average) and debtors (won less than average)
+                    const creditors = players
+                      .filter(p => (p.totalWinnings || 0) > avgWinnings)
+                      .map(p => ({ ...p, amount: (p.totalWinnings || 0) - avgWinnings }))
+                      .sort((a, b) => b.amount - a.amount);
+
+                    const debtors = players
+                      .filter(p => (p.totalWinnings || 0) < avgWinnings)
+                      .map(p => ({ ...p, amount: avgWinnings - (p.totalWinnings || 0) }))
+                      .sort((a, b) => b.amount - a.amount);
+
+                    // If everyone won the same amount
+                    if (creditors.length === 0 && debtors.length === 0) {
+                      return (
+                        <p className="text-center py-4" style={{ color: 'rgb(148, 163, 184)' }}>
+                          Everyone's even! No debts to settle.
+                        </p>
+                      );
+                    }
+
+                    // Calculate settlements
+                    const settlements = [];
+                    const creditorsCopy = creditors.map(c => ({ ...c }));
+                    const debtorsCopy = debtors.map(d => ({ ...d }));
+
+                    for (let debtor of debtorsCopy) {
+                      let remaining = debtor.amount;
+
+                      for (let creditor of creditorsCopy) {
+                        if (remaining <= 0) break;
+                        if (creditor.amount <= 0) continue;
+
+                        const payment = Math.min(remaining, creditor.amount);
+                        settlements.push({
+                          from: debtor.name,
+                          to: creditor.name,
+                          amount: payment
+                        });
+
+                        remaining -= payment;
+                        creditor.amount -= payment;
+                      }
+                    }
+
+                    if (settlements.length === 0) {
+                      return (
+                        <p className="text-center py-4" style={{ color: 'rgb(148, 163, 184)' }}>
+                          Everyone's even! No debts to settle.
+                        </p>
+                      );
+                    }
+
+                    return settlements.map((s, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between px-4 py-3 rounded-lg"
+                        style={{ backgroundColor: 'rgba(30, 41, 59, 0.5)' }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold" style={{ color: 'rgb(239, 68, 68)' }}>{s.from}</span>
+                          <span style={{ color: 'rgb(148, 163, 184)' }}>owes</span>
+                          <span className="font-semibold" style={{ color: 'rgb(34, 197, 94)' }}>{s.to}</span>
+                        </div>
+                        <span className="font-bold text-lg" style={{ color: 'rgb(251, 191, 36)' }}>
+                          ${s.amount.toFixed(2)}
+                        </span>
+                      </div>
+                    ));
+                  })()}
+                </div>
+              </div>
+
               <button
                 onClick={leaveGame}
                 className="w-full py-3 rounded-lg font-semibold transition"
