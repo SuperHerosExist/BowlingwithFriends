@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Target, Dices, Trophy, ArrowLeft, Crown, Network, Sparkles, Zap, User, LogOut, BarChart3, Shield, Upload, Lock } from 'lucide-react';
+import { Target, Trophy, ArrowLeft, Crown, Network, Sparkles, Zap, User, LogOut, BarChart3, Shield, Upload } from 'lucide-react';
 import MakesOrMisses from './games/MakesorMisses';
 import MatchPlay from './games/MatchPlay';
 import KingOfTheHill from './games/KingOfTheHill';
@@ -12,12 +12,6 @@ import UserProfileModal from './components/UserProfileModal';
 import AdminDashboard from './components/AdminDashboard';
 import TopBowlers from './components/TopBowlers';
 import ScoreImport from './components/ScoreImport';
-import AdBanner from './components/AdBanner';
-import RewardedAd from './components/RewardedAd';
-import SubscriptionModal from './components/SubscriptionModal';
-import CreditsModal from './components/CreditsModal';
-import UnlockGameModal from './components/UnlockGameModal';
-import { useUserPayment } from './hooks/useUserPayment';
 
 export default function GamesLanding() {
   const [selectedGame, setSelectedGame] = useState(null);
@@ -29,22 +23,9 @@ export default function GamesLanding() {
   const [showAdmin, setShowAdmin] = useState(false);
   const [showTopBowlers, setShowTopBowlers] = useState(false);
   const [showScoreImport, setShowScoreImport] = useState(false);
-  const [showGuestRestrictionModal, setShowGuestRestrictionModal] = useState(false);
-  const [showRewardedAd, setShowRewardedAd] = useState(false);
-  const [rewardedGameName, setRewardedGameName] = useState('');
-  const [adUnlockedGames, setAdUnlockedGames] = useState(() => {
-    // Load from localStorage
-    const stored = localStorage.getItem('adUnlockedGames');
-    return stored ? JSON.parse(stored) : {};
-  });
   const [pendingJoin, setPendingJoin] = useState(null); // {gameId, joinCode}
-  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
-  const [showCreditsModal, setShowCreditsModal] = useState(false);
-  const [showUnlockModal, setShowUnlockModal] = useState(false); // Modal showing unlock options
-  const [pendingGameId, setPendingGameId] = useState(null); // Game user wants to unlock with credits
 
   const { currentUser, isGuest, isAdmin, signOut } = useAuth();
-  const { credits, hasActiveSubscription, shouldShowAds, spendCredits } = useUserPayment(currentUser?.uid);
   const userMenuRef = useRef(null);
 
   // Check URL parameters for join invitation
@@ -149,86 +130,7 @@ export default function GamesLanding() {
   const handleGameSelect = (gameId) => {
     const game = games.find(g => g.id === gameId);
     if (!game.available) return;
-
-    // Free game - always accessible
-    if (gameId === 'makes-or-misses') {
-      setSelectedGame(gameId);
-      return;
-    }
-
-    // Subscribed users - full access
-    if (hasActiveSubscription) {
-      setSelectedGame(gameId);
-      return;
-    }
-
-    // Guest users - must watch ad or upgrade
-    if (isGuest) {
-      // Check if game is unlocked by watching ad
-      const unlockExpiry = adUnlockedGames[gameId];
-      const isUnlockedByAd = unlockExpiry && Date.now() < unlockExpiry;
-
-      if (isUnlockedByAd) {
-        setSelectedGame(gameId);
-        return;
-      }
-
-      // Offer ad unlock or upgrade
-      setRewardedGameName(game.name);
-      setShowRewardedAd(true);
-      return;
-    }
-
-    // Registered users without subscription - can use credits
-    // Show options: watch ad, use credits, or subscribe
-    setPendingGameId(gameId);
-    setShowUnlockModal(true);
-  };
-
-  const handleAdRewardGranted = () => {
-    // Unlock all games for 24 hours
-    const unlockTime = Date.now() + (24 * 60 * 60 * 1000); // 24 hours
-    const unlocked = {
-      'match-play': unlockTime,
-      'king-of-the-hill': unlockTime,
-      'bracket-play': unlockTime,
-      'mystery-frames': unlockTime
-    };
-    setAdUnlockedGames(unlocked);
-    localStorage.setItem('adUnlockedGames', JSON.stringify(unlocked));
-
-    // Show guest restriction modal with success message
-    setShowGuestRestrictionModal(true);
-  };
-
-  const handleUnlockWithCredits = async () => {
-    if (!pendingGameId) return;
-
-    const success = await spendCredits(1);
-    if (success) {
-      setShowUnlockModal(false);
-      setSelectedGame(pendingGameId);
-      setPendingGameId(null);
-    } else {
-      alert('Unable to unlock game. Please buy more credits.');
-    }
-  };
-
-  const handleUnlockModalWatchAd = () => {
-    setShowUnlockModal(false);
-    const game = games.find(g => g.id === pendingGameId);
-    setRewardedGameName(game?.name || '');
-    setShowRewardedAd(true);
-  };
-
-  const handleUnlockModalBuyCredits = () => {
-    setShowUnlockModal(false);
-    setShowCreditsModal(true);
-  };
-
-  const handleUnlockModalSubscribe = () => {
-    setShowUnlockModal(false);
-    setShowSubscriptionModal(true);
+    setSelectedGame(gameId);
   };
 
   const handleBackToMenu = () => {
@@ -465,37 +367,6 @@ export default function GamesLanding() {
         pendingInvite={pendingJoin}
       />
 
-      {/* Guest Restriction Modal */}
-      {showGuestRestrictionModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShowGuestRestrictionModal(false)}></div>
-          <div className="relative bg-slate-900 border-2 border-purple-500 rounded-2xl shadow-2xl max-w-md w-full p-8">
-            <h2 className="text-3xl font-bold text-white mb-4">Register to Play</h2>
-            <p className="text-slate-300 mb-6">
-              Guest accounts can only access <span className="text-cyan-400 font-semibold">Makes or Misses</span>.
-              Sign up for a free account to unlock all game modes and track your stats!
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setShowGuestRestrictionModal(false);
-                  setShowAuthModal(true);
-                }}
-                className="flex-1 bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-semibold py-3 px-4 rounded-lg hover:shadow-lg hover:shadow-purple-500/50 transition"
-              >
-                Sign Up
-              </button>
-              <button
-                onClick={() => setShowGuestRestrictionModal(false)}
-                className="flex-1 bg-slate-800 text-slate-300 font-semibold py-3 px-4 rounded-lg hover:bg-slate-700 transition border border-slate-700"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* User Profile Modal */}
       <UserProfileModal
         isOpen={showProfileModal}
@@ -514,44 +385,6 @@ export default function GamesLanding() {
 
       {/* Score Import Modal */}
       <ScoreImport isOpen={showScoreImport} onClose={() => setShowScoreImport(false)} />
-
-      {/* Rewarded Ad Modal */}
-      <RewardedAd
-        isOpen={showRewardedAd}
-        onClose={() => setShowRewardedAd(false)}
-        onRewardGranted={handleAdRewardGranted}
-        gameName={rewardedGameName}
-      />
-
-      {/* Unlock Game Modal */}
-      <UnlockGameModal
-        isOpen={showUnlockModal}
-        onClose={() => {
-          setShowUnlockModal(false);
-          setPendingGameId(null);
-        }}
-        gameName={games.find(g => g.id === pendingGameId)?.name || ''}
-        userCredits={credits}
-        onUseCredit={handleUnlockWithCredits}
-        onBuyCredits={handleUnlockModalBuyCredits}
-        onSubscribe={handleUnlockModalSubscribe}
-        onWatchAd={handleUnlockModalWatchAd}
-      />
-
-      {/* Subscription Modal */}
-      <SubscriptionModal
-        isOpen={showSubscriptionModal}
-        onClose={() => setShowSubscriptionModal(false)}
-        user={currentUser}
-      />
-
-      {/* Credits Modal */}
-      <CreditsModal
-        isOpen={showCreditsModal}
-        onClose={() => setShowCreditsModal(false)}
-        user={currentUser}
-        currentCredits={credits}
-      />
 
       <div className="relative z-10 min-h-screen p-4 md:p-6 flex items-center justify-center">
         <div className="max-w-7xl w-full">
@@ -576,7 +409,6 @@ export default function GamesLanding() {
             {games.map((game) => {
               const Icon = game.icon;
               const isHovered = hoveredGame === game.id;
-              const isLocked = isGuest && game.id !== 'makes-or-misses';
 
               return (
                 <button
@@ -589,7 +421,7 @@ export default function GamesLanding() {
                     game.available
                       ? 'hover:scale-105 hover:border-slate-700 cursor-pointer hover:shadow-2xl'
                       : 'opacity-40 cursor-not-allowed'
-                  } ${isLocked ? 'opacity-60' : ''}`}
+                  }`}
                 >
                   {/* Glow Effect */}
                   {isHovered && game.available && (
@@ -609,11 +441,6 @@ export default function GamesLanding() {
                       game.available ? 'group-hover:scale-110 group-hover:rotate-6' : ''
                     } transition-all duration-500 shadow-lg ${isHovered ? game.glowColor + ' shadow-2xl' : ''}`}>
                       <Icon size={32} className="text-white" />
-                      {isLocked && (
-                        <div className="absolute inset-0 bg-black/50 rounded-xl flex items-center justify-center">
-                          <Lock size={24} className="text-white" />
-                        </div>
-                      )}
                     </div>
 
                     {/* Title */}
@@ -730,13 +557,6 @@ export default function GamesLanding() {
               </button>
             )}
           </div>
-
-          {/* Ad Banner - Show for users without subscription */}
-          {shouldShowAds && (
-            <div className="mt-12 mb-6">
-              <AdBanner slot="1234567890" format="horizontal" responsive={true} />
-            </div>
-          )}
 
           {/* Footer Stats */}
           <div className="flex flex-wrap justify-center gap-8 text-center">
